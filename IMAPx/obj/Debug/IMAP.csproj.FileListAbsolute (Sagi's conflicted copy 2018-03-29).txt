@@ -1,0 +1,13 @@
+R:\Dropbox\Dropbox\Projects\IMAP_Final\IMAP\IMAP\bin\Debug\IMAP.exe.config
+R:\Dropbox\Dropbox\Projects\IMAP_Final\IMAP\IMAP\bin\Debug\IMAP.exe
+R:\Dropbox\Dropbox\Projects\IMAP_Final\IMAP\IMAP\bin\Debug\IMAP.pdb
+R:\Dropbox\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.csproj.CoreCompileInputs.cache
+R:\Dropbox\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.exe
+R:\Dropbox\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.pdb
+R:\Dropbox\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.csprojResolveAssemblyReference.cache
+C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\bin\Debug\IMAP.exe.config
+C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\bin\Debug\IMAP.exe
+C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\bin\Debug\IMAP.pdb
+C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.csprojResolveAssemblyReference.cache
+C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.exe
+C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.pdb
