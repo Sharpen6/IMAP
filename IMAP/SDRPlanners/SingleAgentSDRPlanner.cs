@@ -42,7 +42,7 @@ namespace IMAP.SDRPlanners
 
             OriginalActionsMapping = new Dictionary<Action, Action>();
 
-            m_sdrPlanner = new SDRPlanner(m_Domain, m_Problem);
+            m_sdrPlanner = new SDRPlanner(m_Domain, m_Problem, planner);
             SDRPlanner.Planner = m_planner;
         }
         public void Run()

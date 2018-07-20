@@ -17,7 +17,6 @@ namespace IMAP.SDRPlanners
     public class SDRPlanner
     {
         public static bool SDR_OBS { set; get; }
-        public enum PlannerOutput { PlanFound, }
         // FP Requires Python
         public enum Planners { MetricFF, SymBA, FF, FFsa, FFha, MIPS, LPG, FD, CPT }
         public enum Translations { SDR, MPSRTagPartitions, MPSRTags, BestCase, Conformant, SingleStateK }
@@ -103,9 +102,10 @@ namespace IMAP.SDRPlanners
 
         private string m_sFFOutput;
 
-        public SDRPlanner(Domain d, Problem p)
+        public SDRPlanner(Domain d, Problem p, Planners planner)
         {
             Data = new ExecutionData(d.Path, d, p);
+            Planner = planner;
         }
 
         public static void Reset()
@@ -1737,8 +1737,10 @@ namespace IMAP.SDRPlanners
                 //OnlineReplanning(Data.Path, Data.Domain, Data.Problem, out cActions, out cPlanning, out cObservations, out tsTime);
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                OfflinePlanning();
+                var plan = OfflinePlanning();
                 sw.Stop();
+                Console.WriteLine("plan:");
+                Trace.WriteLine(PlanTreePrinter.Print(plan));
                 Console.WriteLine("Planning time: " + sw.Elapsed);
                 Data.Actions = cActions;
                 Data.Planning = cPlanning;

@@ -19,3 +19,14 @@ C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.Forms.Main.re
 C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.Forms.frmProblem.resources
 C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.Forms.ucExecuteResults.resources
 C:\Users\Sagi\Dropbox\Projects\IMAP_Final\IMAP\IMAP\obj\Debug\IMAP.csproj.GenerateResource.Cache
+R:\Github\IMAP\IMAP\bin\Debug\IMAP.exe.config
+R:\Github\IMAP\IMAP\bin\Debug\IMAP.exe
+R:\Github\IMAP\IMAP\bin\Debug\IMAP.pdb
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.csprojResolveAssemblyReference.cache
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.Forms.Main.resources
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.Forms.frmProblem.resources
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.Forms.ucExecuteResults.resources
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.csproj.GenerateResource.cache
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.csproj.CoreCompileInputs.cache
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.exe
+R:\Github\IMAP\IMAP\obj\Debug\IMAP.pdb
