@@ -308,22 +308,17 @@ namespace IMAP.Forms
 
             string sPath = Directory.GetParent(reducedDomain.Path).FullName + "\\";
 
-            SingleAgentSDRPlanner m_saSDRPlanner = new SingleAgentSDRPlanner(activeAgent,
-                                                                            activeGoals,
-                                                                            prevAchievedGoals,
-                                                                            reqCollabActions,
-                                                                            reducedDomain,
+            SingleAgentSDRPlanner m_saSDRPlanner = new SingleAgentSDRPlanner(reducedDomain,
                                                                             reducedProblem,
                                                                             (int)nudMaxTime.Value,
-                                                                            (SDRPlanner.Planners)cbPlanner.SelectedItem
-                                                                            );
-            m_saSDRPlanner.Run();
-            ConditionalPlanTreeNode root = m_saSDRPlanner.Plan;
+                                                                            (SDRPlanner.Planners)cbPlanner.SelectedItem);
 
+            PlanResult planResult = m_saSDRPlanner.Plan(activeAgent,activeGoals, prevAchievedGoals, reqCollabActions);
+
+            ConditionalPlanTreeNode root = planResult.Plan;
             PlanDetails pd = root.ScanDetails(reducedDomain, reducedProblem);
-            pd.PlanningTime = m_saSDRPlanner.PlanningTime;
-            pd.Valid = m_saSDRPlanner.Valid;
-            pd.OriginalActionsMapping = m_saSDRPlanner.OriginalActionsMapping;
+            pd.PlanningTime = planResult.PlanningTime;
+            pd.Valid = planResult.Valid;
             pd.ActiveAgent = activeAgent;
             AddResult(pd);
         }

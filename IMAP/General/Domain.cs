@@ -26,7 +26,6 @@ namespace IMAP.General
 
         public bool m_bUseOptions = true;
         public bool m_bReplaceNonDeterministicEffectsWithOptions = true;
-        public bool UseCosts { get; private set; }
 
         public string AgentCallsign { get; set; }
 
@@ -79,7 +78,6 @@ namespace IMAP.General
 
         public Domain(string sName, string sPath)
         {
-            UseCosts = true;
             Name = sName;
             Path = sPath;
             Actions = new List<Action>();
@@ -235,9 +233,10 @@ namespace IMAP.General
         //CTOR
         public Domain(Domain baseDomain)
         {
-            UseCosts = baseDomain.UseCosts;
+            AgentCallsign = baseDomain.AgentCallsign;
             Name = baseDomain.Name;
             Path = baseDomain.Path;
+            FilePath = baseDomain.FilePath;
             Actions = new List<Action>();
             Constants = new List<Constant>();
             Predicates = new List<Predicate>();
@@ -291,7 +290,7 @@ namespace IMAP.General
                 Functions.Add(function);
             }
 
-            foreach (var constant in baseDomain.m_dConstantNameToType)
+            foreach (var constant in baseDomain.ConstantNameToType)
             {
                 m_dConstantNameToType.Add(constant.Key, constant.Value);
             }

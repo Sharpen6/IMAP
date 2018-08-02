@@ -1,4 +1,6 @@
 ﻿using IMAP.General;
+using IMAP.PlanTree;
+using IMAP.Predicates;
 using IMAP.SDRPlanners;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -6,53 +8,55 @@ using System.IO;
 namespace TestPlanner
 {
     [TestClass]
-    public class TestSDR
+    public class TestSingleAgentSDRPlanner
     {
         [TestMethod]
-        public void TestParseDomain()
-        {
-            string filePathDomain = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\d.pddl";
-            Domain d = Parser.ParseDomain(filePathDomain, "agent");
-            Assert.AreEqual(d.Actions.Count, 4);
-            Assert.AreEqual(d.AgentCallsign, "agent");
-            Assert.IsTrue(File.Exists(d.FilePath));
-        }
-        [TestMethod]
-        public void TestParseProblem()
+        public void SingleAgentSDRPlanner_TestConvertToSingleAgentProblemBoxes()
         {
             string filePathProblem = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\p.pddl";
             string filePathDomain = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            Assert.IsTrue(File.Exists(p.FilePath));
-            Assert.AreEqual(p.Hidden.Count, 3);
+
+            // parameters        
+            Constant currentAgent = new Constant("agent", "a1");
+
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, 200, SDRPlanner.Planners.FF);
+            PlanResult result = saSDR.Plan(currentAgent, null, null, null);
+            Assert.IsNotNull(result.Plan);
         }
 
         [TestMethod]
-        public void TestSDRStartBoxes()
+        public void SingleAgentSDRPlanner_TestConvertToSingleAgentProblemBoxes_DUAL()
         {
             string filePathProblem = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\p.pddl";
             string filePathDomain = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            Assert.AreEqual(4, d.Actions.Count);
-            Assert.AreEqual(11, d.Constants.Count);
-            // solve with all agents problem B3
-            SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
-            sdr.Start();
+
+            // parameters        
+            Constant currentAgent1 = new Constant("agent", "a1");
+            Constant currentAgent2 = new Constant("agent", "a2");
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, 200, SDRPlanner.Planners.FF);
+            PlanResult result = saSDR.Plan(currentAgent1, null, null, null);
+            result = saSDR.Plan(currentAgent2, null, null, null);
+            Assert.IsNotNull(result.Plan);
         }
+
         [TestMethod]
-        public void TestSDRStartButtons()
+        public void SingleAgentSDRPlanner_TestConvertToSingleAgentProblemButtons()
         {
             string filePathProblem = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\ButtonPushing\B1\p.pddl";
             string filePathDomain = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\ButtonPushing\B1\d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            Assert.AreEqual(4, d.Actions.Count);
-            Assert.AreEqual(8, d.Constants.Count);
-            // solve with all agents problem B3
-            SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
-            sdr.Start();
+
+            // parameters        
+            Constant currentAgent = new Constant("agent", "a1");
+
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, 200, SDRPlanner.Planners.FF);
+            PlanResult result = saSDR.Plan(currentAgent, null, null, null);
+            Assert.IsNotNull(result.Plan);
         }
     }
 }

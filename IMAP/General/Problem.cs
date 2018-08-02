@@ -18,8 +18,8 @@ namespace IMAP.General
 
         private HashSet<Predicate> m_lKnown;
         private List<CompoundFormula> m_lHidden;
-        public IEnumerable<CompoundFormula> Hidden { get { return m_lHidden; } }
-        public IEnumerable<Predicate> Known { get { return m_lKnown; } }
+        public List<CompoundFormula> Hidden { get { return m_lHidden; } }
+        public HashSet<Predicate> Known { get { return m_lKnown; } }
         public List<Action> ReasoningActions { get; private set; }
         public string MetricStatement { get; private set; }
         public string FilePath { get; set; }

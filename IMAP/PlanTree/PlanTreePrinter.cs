@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IMAP.PlanTree
 {
-    class PlanTreePrinter
+    public class PlanTreePrinter
     {
         public static string Print(ConditionalPlanTreeNode root)
         {
