@@ -37,12 +37,21 @@ namespace IMAP.SDRPlanners
                 PlanResult pr = saSDR.Plan(agent, null, null, null);
                 if (pr.Valid)
                 {
+
+                    // Extract constraints for next agents
+                    Dictionary<string, int> JointActionsTimes = pr.GetUsedJointActionsLastTiming(Domain);
+
+                    // 1. 
+                    var constraints = GetConstraintsForNextAgents(JointActionsTimes, agent);
+                    // 2. 
+                    PostpondPlanForByJointActionsTimes(JointActionsTimes, pr);
+
                     // Save plan details
                     if (!m_AgentsPlans.ContainsKey(agent))
                         m_AgentsPlans.Add(agent, pr);
                     else
                         m_AgentsPlans[agent] = pr;
-                    // Extract constraints for next agents
+
 
                     // Advance to the next agent
                     agent = agentSelector.GetNextAgent();
@@ -54,6 +63,16 @@ namespace IMAP.SDRPlanners
             }
             
             return null;
+        }
+
+        private object GetConstraintsForNextAgents(Dictionary<string, int> jointActionsTimes, Constant agent)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void PostpondPlanForByJointActionsTimes(Dictionary<string, int> jointActionsTimes, PlanResult pr)
+        {
+            throw new NotImplementedException();
         }
     }
 }

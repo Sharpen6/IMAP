@@ -234,6 +234,26 @@ namespace IMAP.PlanTree
 
             }
         }
+        public void GetActionUsed(ref List<Action> usedActions)
+        {
+            if (Action != null)
+            {
+                usedActions.Add(Action);
+            }
+            if (SingleChild != null)
+            {
+                SingleChild.GetActionUsed(ref usedActions);
+            }
+            if (FalseObservationChild != null)
+            { 
+                FalseObservationChild.GetActionUsed(ref usedActions);
+            }
+            if (TrueObservationChild != null)
+            {
+                TrueObservationChild.GetActionUsed(ref usedActions);
+            }
+            
+        }
         public int MaxOperatingTime()
         {
             int maxTime = 0;

@@ -28,6 +28,7 @@ namespace IMAP
         private Dictionary<int, List<int>> m_mMapConditionsChoices;
 
         private Dictionary<Predicate, Formula> m_mRegressions;
+        internal ParametrizedAction BaseAction;
 
         public bool HasConditionalEffects { get; protected set; }
 
@@ -428,6 +429,7 @@ namespace IMAP
 
         public Action RemoveTime()
         {
+            Action newAction = Clone();
             //Rename
             string newName = "";
             foreach (var item in Name.Split('_'))
@@ -438,13 +440,18 @@ namespace IMAP
                 }
             }
             newName = newName.Substring(1);
+            newAction.Name = newName;
+
             //Remove from effects
             Formula newEffects = Effects.Clone();
             newEffects.RemoveTime();
-            
-            //Remove from preconditions
+            newAction.Effects = newEffects;
 
-            throw new NotImplementedException();
+            //Remove from preconditions
+            Formula newPreconditions = Preconditions.Clone();
+            newPreconditions.RemoveTime();
+            newAction.Preconditions = newPreconditions;         
+            return newAction;
         }
 
         public void GetApplicableEffects(IEnumerable<Predicate> lPredicates, HashSet<Predicate> lAddEffects, HashSet<Predicate> lRemoveEffects, bool bContainsNegations)

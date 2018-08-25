@@ -41,6 +41,7 @@ namespace TestPlanner
             SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
             sdr.Start();
         }
+
         [TestMethod]
         public void TestSDRStartButtons()
         {
@@ -49,7 +50,7 @@ namespace TestPlanner
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
             Assert.AreEqual(4, d.Actions.Count);
-            Assert.AreEqual(8, d.Constants.Count);
+            Assert.AreEqual(11, d.Constants.Count);
             // solve with all agents problem B3
             SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
             sdr.Start();

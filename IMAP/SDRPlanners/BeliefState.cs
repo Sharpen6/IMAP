@@ -1901,27 +1901,24 @@ namespace IMAP.General
             //sr.Close();
 
 
-#if !DEBUG
+
             if (SDRPlanner.UseFilesForPlanners)
             {
-#endif
-            bool bDone = false;
-            while (!bDone)
-            {
-                try
+                bool bDone = false;
+                while (!bDone)
                 {
-                    StreamWriter swDomainFile = new StreamWriter(sDomainFile);
-                    msDomain.Position = 0;
-                    StreamReader srDomainFile = new StreamReader(msDomain);
-                    swDomainFile.Write(srDomainFile.ReadToEnd());
-                    swDomainFile.Close();
-                    bDone = true;
+                    try
+                    {
+                        StreamWriter swDomainFile = new StreamWriter(sDomainFile);
+                        msDomain.Position = 0;
+                        StreamReader srDomainFile = new StreamReader(msDomain);
+                        swDomainFile.Write(srDomainFile.ReadToEnd());
+                        swDomainFile.Close();
+                        bDone = true;
+                    }
+                    catch (Exception e) { }
                 }
-                catch (Exception e) { }
             }
-#if !DEBUG
-            }
-#endif
 
 
             //Debug.WriteLine("Writing tagged problem");
@@ -1958,29 +1955,26 @@ namespace IMAP.General
                 Console.Write(sr2.Read() + ",");
             Console.WriteLine();
             */
-
-#if !DEBUG
             if (SDRPlanner.UseFilesForPlanners)
             {
-#endif
-            bool bDoneIO = false;
-            //while (!bDone)
-            {
-                //try
+                bool bDoneIO = false;
+                //while (!bDone)
                 {
-                    StreamWriter swProblemFile = new StreamWriter(sProblemFile);
-                    msProblem.Position = 0;
-                    StreamReader srProblemFile = new StreamReader(msProblem);
-                    swProblemFile.Write(srProblemFile.ReadToEnd());
-                    swProblemFile.Close();
-                    bDoneIO = true;
+                    //try
+                    {
+                        StreamWriter swProblemFile = new StreamWriter(sProblemFile);
+                        msProblem.Position = 0;
+                        StreamReader srProblemFile = new StreamReader(msProblem);
+                        swProblemFile.Write(srProblemFile.ReadToEnd());
+                        swProblemFile.Close();
+                        bDoneIO = true;
+                    }
+                    //catch (Exception e) { }
                 }
-                //catch (Exception e) { }
-            }
-#if !DEBUG
+
 
             }
-#endif
+
                     // SASWriter sw = new SASWriter(Problem.Domain, Problem, dTags, dTags.Values.First(), lObserved);
                     //sw.WriteDomainAndProblem(sDomainFile.Replace(".pddl",".sas"));
 

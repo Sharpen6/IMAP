@@ -768,9 +768,12 @@ namespace IMAP.SDRPlanners
             {
                 try
                 {
-                    foreach (FileInfo fi in di.GetFiles())
-                        if ((fi.Name.StartsWith("Kd") || fi.Name.StartsWith("Kp")) && fi.Name.EndsWith(".pddl"))
-                            fi.Delete();
+                    if (SDRPlanner.UseFilesForPlanners)
+                    {
+                        foreach (FileInfo fi in di.GetFiles())
+                            if ((fi.Name.StartsWith("Kd") || fi.Name.StartsWith("Kp")) && fi.Name.EndsWith(".pddl"))
+                                fi.Delete();
+                    }
                     bDone = true;
                 }
                 catch (IOException e)
@@ -783,6 +786,7 @@ namespace IMAP.SDRPlanners
             //sChosen = pssCurrent.WriteTaggedDomainAndProblem(sPath + "Kd." + pssCurrent.Problem.Name + "..pddl", sPath + "Kp." + pssCurrent.Problem.Name + "..pddl", out cTags);
             MemoryStream msModels = null;
             sChosen = pssCurrent.WriteTaggedDomainAndProblem(sPath + "Kd.pddl", sPath + "Kp.pddl", out cTags, out msModels);
+            //sChosen = null;
            // Parser parser2 = new Parser();
             //Domain dK2 = parser2.ParseDomain(sPath + "Kd.pddl");
            // Problem pK2 = parser2.ParseProblem(sPath + "Kp.pddl", dK2);

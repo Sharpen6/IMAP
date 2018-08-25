@@ -2445,13 +2445,7 @@ namespace IMAP.Formulas
         }
         internal override int CountAgents(string sAgentCallsign)
         {
-            HashSet<string> lAgents = new HashSet<string>();
-            string[] agents = GetAgents(sAgentCallsign);
-            foreach (var agent in agents)
-            {
-                lAgents.Add(agent);
-            }
-            return lAgents.Count;
+            return GetAgents(sAgentCallsign).Distinct().Count();
         }
         internal override string[] GetAgents(string sAgentCallsign)
         {

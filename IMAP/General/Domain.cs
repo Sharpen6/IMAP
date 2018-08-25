@@ -2291,6 +2291,7 @@ namespace IMAP.General
                 aGrounded.SetEffects(pa.Effects.Ground(dBindings));
             if (pa.Observe != null)
                 aGrounded.Observe = pa.Observe.Ground(dBindings);
+            aGrounded.BaseAction = pa;
             return aGrounded;
         }
 
