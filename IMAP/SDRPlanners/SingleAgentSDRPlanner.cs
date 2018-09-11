@@ -94,11 +94,11 @@ namespace IMAP.SDRPlanners
 
             foreach (var action in m_AgentDomain.Actions)
             {
+                Action originalAction = action.Clone();
                 if (action.Preconditions.ContainsParameter(pIsAgent) || action.Preconditions.ContainsParameter(pIsAgentJoint))
                 {
                     if (action.Preconditions.CountAgents(m_AgentDomain.AgentCallsign) > 1)
                     {
-                        Action originalAction = action.Clone();
                         // Joint Action
                         ParameterizedPredicate paramPredicateAgentAt = new ParameterizedPredicate("agent-at");
                         paramPredicateAgentAt.AddParameter(new Parameter(m_AgentDomain.AgentCallsign, "?a2"));
@@ -115,6 +115,7 @@ namespace IMAP.SDRPlanners
                         action.Preconditions = newcf;
                     }
                 }
+                action.OriginalActionBeforeRemovingAgent = originalAction;
             }
         }
         private void AddNoopAction()

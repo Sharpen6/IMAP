@@ -20,7 +20,7 @@ namespace IMAP.General
             Valid = valid;
         }
 
-        public Dictionary<string, int> GetUsedJointActionsLastTiming(Domain d)
+        public Dictionary<Action, int> GetUsedJointActionsLastTiming(Domain d)
         {
             // get contraints from plan
             if (Plan == null)
@@ -40,20 +40,24 @@ namespace IMAP.General
             }
 
 
-            Dictionary<string /*type of the action (name) without time*/, int /*max time observed*/ > actionsTime = new Dictionary<string, int>();
+            Dictionary<Action /*type of the action without time*/, int /*max time observed*/ > actionsTime = new Dictionary<Action, int>();
             foreach (Action a in UsedJointActions)
             {
                 Action aWithoutTime = a.RemoveTime();
-                if (actionsTime.ContainsKey(aWithoutTime.Name))
+
+                // The list already contains the action (without time)?
+                if (actionsTime.Count(x=>x.Key.Name == aWithoutTime.Name) > 0)
                 {
-                    if (actionsTime[aWithoutTime.Name] < a.GetTime())
+                    KeyValuePair<Action,int> existingAction = actionsTime.Where(x => x.Key.Name == aWithoutTime.Name).First();
+
+                    if (existingAction.Value < a.GetTime())
                     {
-                        actionsTime[aWithoutTime.Name] = a.GetTime();
+                        actionsTime[existingAction.Key] = a.GetTime();
                     }
                 }
                 else
                 {
-                    actionsTime.Add(aWithoutTime.Name, a.GetTime());
+                    actionsTime.Add(aWithoutTime, a.GetTime());
                 }
             }
             return actionsTime;

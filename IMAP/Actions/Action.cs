@@ -35,6 +35,7 @@ namespace IMAP
         public Action Original { get; private set; }
         public bool JointAction { get; set; }
         public Action OriginalActionBeforeSplit { get; set; }
+        public Action OriginalActionBeforeRemovingAgent { get; internal set; }
 
         public Action(string sName)
         {
