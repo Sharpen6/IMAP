@@ -3008,22 +3008,30 @@ namespace IMAP
         {
             Action aNew = new Action(Name);
             if (Preconditions != null)
+            {
                 aNew.Preconditions = Preconditions.Clone();
+                aNew.Preconditions.ResetCache();
+            }
+
             if (Effects != null)
             {
                 aNew.Effects = Effects.Clone();
                 aNew.Effects.ResetCache();
             }
+
             if (Observe != null)
+            {
                 aNew.Observe = Observe.Clone();
+                aNew.Observe.ResetCache();
+            }
+
             aNew.HasConditionalEffects = HasConditionalEffects;
             aNew.ContainsNonDeterministicEffect = ContainsNonDeterministicEffect;
             aNew.NonDeterministicEffects = new HashSet<Predicate>(NonDeterministicEffects);
             aNew.Original = Original;
             aNew.OriginalActionBeforeSplit = OriginalActionBeforeSplit;
             aNew.Cost = Cost;
-            
-            aNew.Preconditions.ResetCache();
+  
             return aNew;
         }
 

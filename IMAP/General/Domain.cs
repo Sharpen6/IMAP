@@ -74,6 +74,46 @@ namespace IMAP.General
             }
         }
 
+        internal Tuple<Constant, Action> GetCorellativeActionForOtherAgents(KeyValuePair<Action, int> a, Constant agent)
+        {
+
+            List<Constant> otherAgents = GetAgents().Where(x=>x.Name!=agent.Name).ToList();
+            ParametrizedAction BaseAction = (ParametrizedAction)GetActionByName(a.Key.Name.Split('_')[0]);
+            //BaseAction = (ParametrizedAction)BaseAction.RemoveTime();
+            string[] asAction = a.Key.Name.Split('_');
+            Dictionary<string, Constant> dBindings = GetBindings(BaseAction, asAction);
+
+            // For this action - get all correlated actions in reverse - p2(secondary) -> p1(main) & p1(main) -> p2(secondary)
+            var mainActor = dBindings.Where(x => x.Value.Type == agent.Type && x.Value.Name == agent.Name).First();
+            var secondaryActor = dBindings.Where(x => x.Value.Type == agent.Type && x.Value.Name != agent.Name).First();
+
+            // Flip
+            dBindings[mainActor.Key] = secondaryActor.Value;
+            dBindings[secondaryActor.Key] = mainActor.Value;
+            //dBindings[mainActor] = secondaryActor.Value;
+            //dBindings[secondaryActor.Key] = agent;
+
+            Formula fGroundedPreconditions = null;
+            if (BaseAction.Preconditions != null)
+                fGroundedPreconditions = BaseAction.Preconditions.Ground(dBindings);
+            else if (BaseAction.Effects != null)
+                BaseAction.Effects.Ground(dBindings);
+            else if (BaseAction.Observe != null)
+                BaseAction.Observe.Ground(dBindings);
+            string sName = BaseAction.Name;
+            foreach (Parameter p in BaseAction.Parameters)
+                sName += "_" + dBindings[p.Name].Name;
+            Action aGrounded = new Action(sName);
+            aGrounded.Preconditions = fGroundedPreconditions;
+            if (BaseAction.Effects != null)
+                aGrounded.SetEffects(BaseAction.Effects.Ground(dBindings));
+            if (BaseAction.Observe != null)
+                aGrounded.Observe = BaseAction.Observe.Ground(dBindings);
+            aGrounded.BaseAction = BaseAction;
+
+            return new Tuple<Constant, Action>(secondaryActor.Value, aGrounded);
+        }
+
         public string FilePath { get; set; }
 
         public Domain(string sName, string sPath)
@@ -2200,7 +2240,7 @@ namespace IMAP.General
             return cMaxOptions;
         }
 
-        private Action GetActionByName(string sActionName)
+        public Action GetActionByName(string sActionName)
         {
             foreach (Action a in Actions)
             {

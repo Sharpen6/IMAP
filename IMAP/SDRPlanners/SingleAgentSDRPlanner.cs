@@ -27,11 +27,11 @@ namespace IMAP.SDRPlanners
         private List<KeyValuePair<Predicate, int>> m_GoalsCompletionTime;
         private SDRPlanner.Planners m_planner;
 
-        public SingleAgentSDRPlanner(Domain m_Domain, Problem m_Problem, int maxTime, SDRPlanner.Planners planner)
+        public SingleAgentSDRPlanner(Domain m_Domain, Problem m_Problem, SDRPlanner.Planners planner)
         { 
             this.m_GeneralDomain = m_Domain;
             this.m_GeneralProblem = m_Problem;
-            this.m_maxTime = maxTime;
+            this.m_maxTime = IterativeMAPlanner.MAX_TIME;
             this.m_planner = planner;
         }
         public PlanResult Plan(Constant activeAgent, List<Predicate> activeGoals, List<KeyValuePair<Predicate, int>> goalsCompletionTime, List<Action> reqActions)
@@ -61,7 +61,7 @@ namespace IMAP.SDRPlanners
 
             TimeSpan PlanningTime = DateTime.Now - start;
 
-            PlanResult result = new PlanResult(Plan, PlanningTime, Valid);
+            PlanResult result = new PlanResult(activeAgent, Plan, PlanningTime, Valid, m_AgentDomain, m_AgentProblem);
 
             return result;
         }

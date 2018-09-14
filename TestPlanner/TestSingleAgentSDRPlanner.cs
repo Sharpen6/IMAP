@@ -21,7 +21,7 @@ namespace TestPlanner
             // parameters        
             Constant currentAgent = new Constant("agent", "a1");
 
-            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, 200, SDRPlanner.Planners.FF);
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, SDRPlanner.Planners.FF);
             PlanResult result = saSDR.Plan(currentAgent, null, null, null);
             Assert.IsNotNull(result.Plan);
         }
@@ -37,7 +37,7 @@ namespace TestPlanner
             // parameters        
             Constant currentAgent1 = new Constant("agent", "a1");
            
-            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, 200, SDRPlanner.Planners.FF);
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, SDRPlanner.Planners.FF);
             PlanResult result = saSDR.Plan(currentAgent1, null, null, null);
 
             Constant currentAgent2 = new Constant("agent", "a2");
@@ -57,7 +57,7 @@ namespace TestPlanner
             // parameters        
             Constant currentAgent = new Constant("agent", "a1");
 
-            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, 200, SDRPlanner.Planners.FF);
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, SDRPlanner.Planners.FF);
             PlanResult result = saSDR.Plan(currentAgent, null, null, null);
             string  s =  PlanTreePrinter.Print(result.Plan);
             Assert.IsNotNull(result.Plan);
@@ -73,7 +73,7 @@ namespace TestPlanner
             // parameters        
             Constant currentAgent = new Constant("agent", "a1");
 
-            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, 200, SDRPlanner.Planners.FF);
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(d, p, SDRPlanner.Planners.FF);
             PlanResult result = saSDR.Plan(currentAgent, null, null, null);
             string s = PlanTreePrinter.Print(result.Plan);
             Assert.IsNotNull(result.Plan);

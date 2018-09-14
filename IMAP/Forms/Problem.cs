@@ -27,8 +27,8 @@ namespace IMAP.Forms
         {
             InitializeComponent();
 
-            InitTextFields();
-            InitBenchmarksList();
+           // InitTextFields();
+           // InitBenchmarksList();
         }
 
         private class Folder
@@ -310,7 +310,6 @@ namespace IMAP.Forms
 
             SingleAgentSDRPlanner m_saSDRPlanner = new SingleAgentSDRPlanner(reducedDomain,
                                                                             reducedProblem,
-                                                                            (int)nudMaxTime.Value,
                                                                             (SDRPlanner.Planners)cbPlanner.SelectedItem);
 
             PlanResult planResult = m_saSDRPlanner.Plan(activeAgent,activeGoals, prevAchievedGoals, reqCollabActions);

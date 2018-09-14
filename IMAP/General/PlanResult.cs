@@ -1,4 +1,5 @@
 ﻿using IMAP.PlanTree;
+using IMAP.Predicates;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,14 +11,21 @@ namespace IMAP.General
 {
     public class PlanResult
     {
+        public Constant m_planningAgent { get; set; }
         public ConditionalPlanTreeNode Plan { get; set; }
         public TimeSpan PlanningTime { get; set; }
         public bool Valid { get; set; }
-        public PlanResult(ConditionalPlanTreeNode plan, TimeSpan planningTime, bool valid)
+        public Domain m_agentDomain { get; set; }
+        public Problem m_agentProblem { get; set; }
+
+        public PlanResult(Constant agent, ConditionalPlanTreeNode plan, TimeSpan planningTime, bool valid, Domain d, Problem p)
         {
+            m_planningAgent = agent;
             Plan = plan;
             PlanningTime = planningTime;
             Valid = valid;
+            m_agentDomain = d;
+            m_agentProblem = p;
         }
 
         public Dictionary<Action, int> GetUsedJointActionsLastTiming(Domain d)
@@ -38,28 +46,34 @@ namespace IMAP.General
                     UsedJointActions.Add(a);
                 }
             }
-
-
-            Dictionary<Action /*type of the action without time*/, int /*max time observed*/ > actionsTime = new Dictionary<Action, int>();
+            Dictionary<Action /*type of the action without time*/, Action /*type of the action with time*/ > actionsTimesMapping = new Dictionary<Action, Action>();
             foreach (Action a in UsedJointActions)
             {
+                // The list already contains the action
+
                 Action aWithoutTime = a.RemoveTime();
-
-                // The list already contains the action (without time)?
-                if (actionsTime.Count(x=>x.Key.Name == aWithoutTime.Name) > 0)
+                if (actionsTimesMapping.Count(x=>x.Key.Name == aWithoutTime.Name) > 0)
                 {
-                    KeyValuePair<Action,int> existingAction = actionsTime.Where(x => x.Key.Name == aWithoutTime.Name).First();
+                    var aWithTimeAlreadyExists = actionsTimesMapping.Where(x => x.Key.Name == aWithoutTime.Name).First();
 
-                    if (existingAction.Value < a.GetTime())
+                    if (aWithTimeAlreadyExists.Value.GetTime() < a.GetTime())
                     {
-                        actionsTime[existingAction.Key] = a.GetTime();
+                        actionsTimesMapping[aWithoutTime] = a;
                     }
                 }
                 else
                 {
-                    actionsTime.Add(aWithoutTime, a.GetTime());
+                    actionsTimesMapping.Add(a.RemoveTime(), a);
                 }
             }
+
+            Dictionary<Action /*type of the action without time*/, int /*time*/ > actionsTime = new Dictionary<Action, int>();
+            foreach (var action in actionsTimesMapping)
+            {
+                actionsTime.Add(action.Value, action.Value.GetTime());
+            }
+
+   
             return actionsTime;
         }
     }

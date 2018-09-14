@@ -33,3 +33,15 @@ R:\Github\IMAP\IMAP\obj\Debug\IMAP.pdb
 R:\Github\IMAP\IMAP\bin\Debug\Newtonsoft.Json.dll
 R:\Github\IMAP\IMAP\bin\Debug\Newtonsoft.Json.xml
 R:\Github\IMAP\IMAP\obj\Debug\IMAP.csproj.CopyComplete
+C:\Github\IMAP\IMAP\bin\Debug\IMAP.exe.config
+C:\Github\IMAP\IMAP\bin\Debug\IMAP.exe
+C:\Github\IMAP\IMAP\bin\Debug\IMAP.pdb
+C:\Github\IMAP\IMAP\bin\Debug\Newtonsoft.Json.dll
+C:\Github\IMAP\IMAP\bin\Debug\Newtonsoft.Json.xml
+C:\Github\IMAP\IMAP\obj\Debug\IMAP.csprojResolveAssemblyReference.cache
+C:\Github\IMAP\IMAP\obj\Debug\IMAP.Forms.Main.resources
+C:\Github\IMAP\IMAP\obj\Debug\IMAP.Forms.frmProblem.resources
+C:\Github\IMAP\IMAP\obj\Debug\IMAP.Forms.ucExecuteResults.resources
+C:\Github\IMAP\IMAP\obj\Debug\IMAP.csproj.GenerateResource.Cache
+C:\Github\IMAP\IMAP\obj\Debug\IMAP.exe
+C:\Github\IMAP\IMAP\obj\Debug\IMAP.pdb

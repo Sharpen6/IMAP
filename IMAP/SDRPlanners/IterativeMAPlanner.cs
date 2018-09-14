@@ -10,6 +10,8 @@ namespace IMAP.SDRPlanners
 {
     public class IterativeMAPlanner
     {
+        public static int MAX_TIME = 200;
+
         public Domain Domain { get; set; }
         public Problem Problem { get; set; }
 
@@ -27,7 +29,7 @@ namespace IMAP.SDRPlanners
         public PlanResult Plan()
         {
             // Initialize SA agent Planner
-            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(Domain, Problem, 200, SDRPlanner.Planners.FF);
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(Domain, Problem, SDRPlanner.Planners.FF);
 
             // Get the first agent
             Constant agent = agentSelector.GetNextAgent();
@@ -37,15 +39,12 @@ namespace IMAP.SDRPlanners
                 PlanResult pr = saSDR.Plan(agent, null, null, null);
                 if (pr.Valid)
                 {
-
-                    // Extract constraints for next agents
-                    Dictionary<Action, int> JointActionsTimes = pr.GetUsedJointActionsLastTiming(Domain);
-
-                    // 1. 
-                    var constraints = GetConstraintsForNextAgents(JointActionsTimes, agent);
-                    // 2. 
-                    PostpondPlanByJointActionsTimes(pr, JointActionsTimes);
-
+                    // 1. Align tree using joint actions
+                    Dictionary<Action, int> JointActionsTimes = pr.GetUsedJointActionsLastTiming(pr.m_agentDomain);
+                    // 2. Extract constraints
+                    //         Agent   , Actions required
+                    Dictionary<Constant, List<Action>> constraints = GetConstraintsForNextAgents(pr);
+                    //PostpondPlanByJointActionsTimes(pr, JointActionsTimes);
                     // Save plan details
                     if (!m_AgentsPlans.ContainsKey(agent))
                         m_AgentsPlans.Add(agent, pr);
@@ -65,14 +64,23 @@ namespace IMAP.SDRPlanners
             return null;
         }
 
-        private object GetConstraintsForNextAgents(Dictionary<Action, int> jointActionsTimes, Constant agent)
+        public Dictionary<Constant, List<Action>> GetConstraintsForNextAgents(PlanResult pr)
         {
-            foreach (var joinAction in jointActionsTimes)
+            Dictionary<Constant, List<Action>> res = new Dictionary<Constant, List<Action>>();
+            // Extract constraints for next agents
+            Dictionary<Action, int> JointActionsTimes = pr.GetUsedJointActionsLastTiming(pr.m_agentDomain);
+            // 
+            Constant agent = pr.m_planningAgent;
+            foreach (var joinAction in JointActionsTimes)
             {
-                var agents = joinAction.Key.BaseAction.Preconditions.GetAgents(SDRPlanner.AgentName);
-
+                // The secondary actor which have to do this action, the action
+                Tuple< Constant, Action > action = pr.m_agentDomain.GetCorellativeActionForOtherAgents(joinAction, agent);
+                
+                if (!res.ContainsKey(action.Item1))
+                    res.Add(action.Item1, new List<Action>());
+                res[action.Item1].Add(action.Item2);
             }
-            return null;
+            return res;
         }
 
         private void PostpondPlanByJointActionsTimes(PlanResult pr, Dictionary<Action, int> jointActionsTimes)
