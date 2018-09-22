@@ -26,7 +26,7 @@ namespace IMAP.SDRPlanners
             agentSelector = new AgentSelector(d.GetAgents());
         }
 
-        public PlanResult Plan()
+        public Dictionary<Constant, PlanResult> Plan()
         {
             // Initialize SA agent Planner
             SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(Domain, Problem, SDRPlanner.Planners.FF);
@@ -36,7 +36,11 @@ namespace IMAP.SDRPlanners
 
             while (agent!=null)
             {
-                PlanResult pr = saSDR.Plan(agent, null, null, null);
+                // Get constraints from previous iterations
+                List<Action> prevCollabConstraints = agentSelector.GetCollabConstraints(agent);
+
+                // Plan for current agent
+                PlanResult pr = saSDR.Plan(agent, null, null, prevCollabConstraints);
                 if (pr.Valid)
                 {
                     // 1. Align tree using joint actions
@@ -44,7 +48,26 @@ namespace IMAP.SDRPlanners
                     // 2. Extract constraints
                     //         Agent   , Actions required
                     Dictionary<Constant, List<Action>> constraints = GetConstraintsForNextAgents(pr);
-                    //PostpondPlanByJointActionsTimes(pr, JointActionsTimes);
+
+                    // 3. Check if sender of  can commit to the collaborative actions
+                    PlanResult pr_validation = saSDR.Plan(agent, null, null, constraints[agent]);
+
+                    if (pr_validation.Valid)
+                    {
+                        pr = pr_validation;
+                    }
+                    else
+                    {
+                        // postpone joint actions until valid
+                        throw new NotImplementedException();
+                    }
+
+                    // 4. Save collab constraints for other agents
+                    foreach (var agentConstraints in constraints)
+                    { 
+                        agentSelector.AddCollabConstraints(agentConstraints.Key, agentConstraints.Value, agent);
+                    }
+
                     // Save plan details
                     if (!m_AgentsPlans.ContainsKey(agent))
                         m_AgentsPlans.Add(agent, pr);
@@ -57,30 +80,37 @@ namespace IMAP.SDRPlanners
                 }
                 else
                 {
-
+                    agent = agentSelector.GetNextAgent();
                 }
             }
             
-            return null;
+            return m_AgentsPlans;
         }
 
         public Dictionary<Constant, List<Action>> GetConstraintsForNextAgents(PlanResult pr)
         {
-            Dictionary<Constant, List<Action>> res = new Dictionary<Constant, List<Action>>();
             // Extract constraints for next agents
             Dictionary<Action, int> JointActionsTimes = pr.GetUsedJointActionsLastTiming(pr.m_agentDomain);
             // 
             Constant agent = pr.m_planningAgent;
+
+            Dictionary<Constant, List<Action>> collabActionsForAgents = new Dictionary<Constant, List<Action>>();
+
             foreach (var joinAction in JointActionsTimes)
             {
                 // The secondary actor which have to do this action, the action
-                Tuple< Constant, Action > action = pr.m_agentDomain.GetCorellativeActionForOtherAgents(joinAction, agent);
-                
-                if (!res.ContainsKey(action.Item1))
-                    res.Add(action.Item1, new List<Action>());
-                res[action.Item1].Add(action.Item2);
+                Tuple<Constant, Action> actionForOther = pr.m_agentDomain.GetCorellativeActionForOtherAgents(joinAction, agent);
+                Tuple<Constant, Action> actionForSelf = pr.m_agentDomain.GetCorellativeActionForOtherAgents(joinAction, agent);
+
+                if (!collabActionsForAgents.ContainsKey(actionForOther.Item1))
+                    collabActionsForAgents.Add(actionForOther.Item1, new List<Action>());
+                collabActionsForAgents[actionForOther.Item1].Add(actionForOther.Item2);
+
+                if (!collabActionsForAgents.ContainsKey(agent))
+                    collabActionsForAgents.Add(agent, new List<Action>());
+                collabActionsForAgents[agent].Add(joinAction.Key);
             }
-            return res;
+            return collabActionsForAgents;
         }
 
         private void PostpondPlanByJointActionsTimes(PlanResult pr, Dictionary<Action, int> jointActionsTimes)

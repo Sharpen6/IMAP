@@ -39,6 +39,7 @@ namespace IMAP.Predicates
             : base(pp.Name)
         {
             m_lParameters = new List<Argument>(pp.m_lParameters);
+            Negation = pp.Negation;
             Parameterized = pp.Parameterized;
         }
         protected override string GetString()

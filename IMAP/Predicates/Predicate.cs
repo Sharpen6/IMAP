@@ -38,8 +38,6 @@ namespace IMAP.Predicates
         public Predicate(string sName)
             : this(sName, false)
         {
-            if (sName.Contains("take_image_rover0_waypoint5_objective1_camera0_high_res_Option"))
-                Console.Write("*");
         }
         public Predicate(string sName, bool bNegate)
         {

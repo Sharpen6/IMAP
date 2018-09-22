@@ -963,18 +963,20 @@ namespace IMAP.General
                 Predicate notknp = knp.Clone();
                 notknp.Name = "Not" + knp.Name;
 
-                CompoundFormula cfPreconditions = new CompoundFormula("and");
-                cfPreconditions.SimpleAddOperand(kp.Negate());
-                cfPreconditions.SimpleAddOperand(knp.Negate());
+               // CompoundFormula cfPreconditions = new CompoundFormula("and");
+               // cfPreconditions.SimpleAddOperand(kp.Negate());
+               // cfPreconditions.SimpleAddOperand(knp.Negate());
 
-                if(lNegativePreconditions.Count != 0)
-                {
-                    cfPreconditions.SimpleAddOperand(notkp);
-                    cfPreconditions.SimpleAddOperand(notknp);
-                }
+               // if(lNegativePreconditions.Count != 0)
+               // {
+               //     cfPreconditions.SimpleAddOperand(notkp);
+               //     cfPreconditions.SimpleAddOperand(notknp);
+               // }
 
-                cfPreconditions.SimpleAddOperand(aK.Preconditions);
-                aK.Preconditions = cfPreconditions;
+
+                //cfPreconditions.SimpleAddOperand(aK.Preconditions);
+
+               // aK.Preconditions = cfPreconditions;
 
                 //Predicate gpNotK = pObserve.Clone();
                 //gpNotK.Name = "NotK" + gpNotK.Name;

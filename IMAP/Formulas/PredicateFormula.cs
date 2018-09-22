@@ -230,7 +230,7 @@ namespace IMAP.Formulas
 
         public override Formula Clone()
         {
-            PredicateFormula f = new PredicateFormula(Predicate);
+            PredicateFormula f = new PredicateFormula(Predicate.Clone());
             return f;
         }
 

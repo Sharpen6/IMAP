@@ -1258,7 +1258,9 @@ namespace IMAP.SDRPlanners
 
                         if (lPlan == null)
                         {
-                            Debug.WriteLine(" planning ( attempt: "+ attemptNum + ")");
+                            Debug.WriteLine(" planning ( attempt: "+ attemptNum++ + ")");
+                            if (attemptNum > 3)
+                                break;
 
                             switch (Planner)
                             {
@@ -1475,7 +1477,9 @@ namespace IMAP.SDRPlanners
             sw.Close();
 
             List<string> ll = new List<string>();
-            bool bValid = CheckPlan(pssInitial, pssInitial.Plan, new List<ConditionalPlanTreeNode>(), ll);
+            string sPlan = PlanTreePrinter.Print(pssInitial.Plan);
+            //bool bValid = CheckPlan(pssInitial, pssInitial.Plan, new List<ConditionalPlanTreeNode>(), ll);
+            bool bValid = pssInitial.Plan != null;
             if (!bValid)
                 Console.WriteLine("error");
             else

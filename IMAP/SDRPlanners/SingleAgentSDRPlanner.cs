@@ -36,11 +36,14 @@ namespace IMAP.SDRPlanners
         }
         public PlanResult Plan(Constant activeAgent, List<Predicate> activeGoals, List<KeyValuePair<Predicate, int>> goalsCompletionTime, List<Action> reqActions)
         {
-            m_AgentDomain = new Domain(m_GeneralDomain);
-            m_AgentProblem = new Problem(m_GeneralProblem, m_AgentDomain);
+            m_AgentDomain = Parser.ParseDomain(m_GeneralDomain.FilePath, m_GeneralDomain.AgentCallsign);
+            m_AgentProblem = Parser.ParseProblem(m_GeneralProblem.FilePath, m_AgentDomain);
+
+            //m_AgentDomain = new Domain(m_GeneralDomain.Path);
+            //m_AgentProblem = new Problem(m_GeneralProblem, m_AgentDomain);
 
             m_ActiveAgent = activeAgent;
-            m_ActiveGoals = activeGoals;
+            m_ActiveGoals = m_AgentProblem.GetGoals();
             m_GoalsCompletionTime = goalsCompletionTime;
             m_ReqCollabActions = reqActions;
 
@@ -56,7 +59,10 @@ namespace IMAP.SDRPlanners
             AddCosts();
 
             SDRPlanner sdrPlanner = new SDRPlanner(m_AgentDomain, m_AgentProblem, m_planner);
+            string s1 = m_AgentDomain.ToString();
+            string s2 = m_AgentProblem.ToString();
             ConditionalPlanTreeNode Plan = sdrPlanner.OfflinePlanning();
+            string s = m_AgentDomain.ToString();
             bool Valid = sdrPlanner.Valid;
 
             TimeSpan PlanningTime = DateTime.Now - start;

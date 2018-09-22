@@ -29,6 +29,21 @@ namespace TestPlanner
         }
 
         [TestMethod]
+        public void TestCloneDomain()
+        {
+            string filePathProblem = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\p.pddl";
+            string filePathDomain = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\d.pddl";
+            Domain d = Parser.ParseDomain(filePathDomain, "agent");
+            Problem p = Parser.ParseProblem(filePathProblem, d);
+
+            Domain m_AgentDomain = new Domain(d);
+            Problem m_AgentProblem = new Problem(p, d);
+
+            Assert.AreEqual(d.ToString(),m_AgentDomain.ToString());
+            Assert.AreEqual(p.ToString(), m_AgentProblem.ToString());
+        }
+       
+        [TestMethod]
         public void TestSDRStartBoxes()
         {
             string filePathProblem = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\p.pddl";
@@ -38,8 +53,8 @@ namespace TestPlanner
             Assert.AreEqual(4, d.Actions.Count);
             Assert.AreEqual(11, d.Constants.Count);
             // solve with all agents problem B3
-            SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
-            sdr.Start();
+            //SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
+            // sdr.Start();
         }
 
         [TestMethod]
@@ -52,8 +67,8 @@ namespace TestPlanner
             Assert.AreEqual(4, d.Actions.Count);
             Assert.AreEqual(11, d.Constants.Count);
             // solve with all agents problem B3
-            SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
-            sdr.Start();
+            //SDRPlanner sdr = new SDRPlanner(d, p, SDRPlanner.Planners.FF);
+            //sdr.Start();
         }
     }
 }

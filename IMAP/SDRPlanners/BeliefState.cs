@@ -1898,6 +1898,7 @@ namespace IMAP.General
             }
             swModels.Write('\0');
             swModels.Flush();
+
             //sr.Close();
 
 

@@ -703,6 +703,7 @@ namespace IMAP.Formulas
             CompoundFormula cfClone = new CompoundFormula(Operator);
             foreach (Formula f in Operands)
                 cfClone.SimpleAddOperand(f.Clone());
+
             return cfClone;
         }
 
