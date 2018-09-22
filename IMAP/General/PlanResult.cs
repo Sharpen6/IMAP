@@ -28,6 +28,16 @@ namespace IMAP.General
             m_agentProblem = p;
         }
 
+        public List<KeyValuePair<Predicate, int>> GetGoalsCompletionTime()
+        {
+            if (Plan == null)
+                return null;
+            List<Predicate> goals = m_agentProblem.GetGoals();
+            Dictionary<Predicate, int> goalTimeing = new Dictionary<Predicate, int>();
+            Plan.GetGoalsTiming(goals, ref goalTimeing);
+
+            return null;
+        }
         public Dictionary<Action, int> GetUsedJointActionsLastTiming(Domain d)
         {
             // get contraints from plan

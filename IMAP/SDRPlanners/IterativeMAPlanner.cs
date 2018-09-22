@@ -62,12 +62,20 @@ namespace IMAP.SDRPlanners
                         throw new NotImplementedException();
                     }
 
-                    // 4. Save collab constraints for other agents
+                    // 4. Save collaborative actions' constraints for other agents
                     foreach (var agentConstraints in constraints)
                     { 
                         agentSelector.AddCollabConstraints(agentConstraints.Key, agentConstraints.Value, agent);
                     }
 
+
+                    // 5. Save goal completion time
+                    //foreach (var item in pr.GoalsCompletionTime)
+                    //{
+                        //agentSelector.AddGoalCompletionTime()
+                    //}
+                   
+                    
                     // Save plan details
                     if (!m_AgentsPlans.ContainsKey(agent))
                         m_AgentsPlans.Add(agent, pr);

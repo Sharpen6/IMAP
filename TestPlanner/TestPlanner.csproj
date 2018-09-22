@@ -61,6 +61,7 @@
     <Compile Include="TestIterativeMAPlanner.cs" />
     <Compile Include="TestSingleAgentSDRPlanner.cs" />
     <Compile Include="TestSDRPlanners.cs" />
+    <Compile Include="TestConditionalPlanTreeNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -48,6 +48,31 @@ namespace IMAP.PlanTree
             }
             return s;
         }
+
+        public void GetGoalsTiming(List<Predicate> goals, ref Dictionary<Predicate, int> goalTimeing)
+        {
+            foreach (Predicate goal in goals)
+            {
+                List<IMAP.Action> timestamps = ScanEffectsForConst(goal);
+                if (timestamps.Count == 0)
+                    continue;
+                int latest = int.MaxValue;
+                Action earliestAction = null;
+                foreach (var item in timestamps)
+                {
+                    if (item.GetTime() < latest)
+                    {
+                        latest = item.GetTime();
+                        earliestAction = item;
+                    }
+                }
+
+                string actionName = earliestAction.GetOperationName();
+
+                goalTimeing.Add(goal, latest);
+            }
+        }
+
         public override string ToString()
         {
             return ToString("", new HashSet<int>());
@@ -308,6 +333,14 @@ namespace IMAP.PlanTree
                                     }
 
                                 }
+                            }
+                        }
+                        else if (fEffects is PredicateFormula)
+                        {
+                            PredicateFormula pf = (PredicateFormula)fEffects;
+                            if (pf.Predicate.ToString() == goal.ToString())
+                            {
+                                ans.Add(Action);
                             }
                         }
                         else

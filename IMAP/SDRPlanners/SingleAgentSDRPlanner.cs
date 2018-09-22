@@ -24,6 +24,7 @@ namespace IMAP.SDRPlanners
 
         private int m_maxTime;
         private List<Action> m_ReqCollabActions;
+                                 // Goal   , time
         private List<KeyValuePair<Predicate, int>> m_GoalsCompletionTime;
         private SDRPlanner.Planners m_planner;
 
@@ -39,11 +40,9 @@ namespace IMAP.SDRPlanners
             m_AgentDomain = Parser.ParseDomain(m_GeneralDomain.FilePath, m_GeneralDomain.AgentCallsign);
             m_AgentProblem = Parser.ParseProblem(m_GeneralProblem.FilePath, m_AgentDomain);
 
-            //m_AgentDomain = new Domain(m_GeneralDomain.Path);
-            //m_AgentProblem = new Problem(m_GeneralProblem, m_AgentDomain);
-
             m_ActiveAgent = activeAgent;
             m_ActiveGoals = m_AgentProblem.GetGoals();
+
             m_GoalsCompletionTime = goalsCompletionTime;
             m_ReqCollabActions = reqActions;
 
@@ -137,7 +136,7 @@ namespace IMAP.SDRPlanners
         {
             if (m_GoalsCompletionTime != null)
             {
-                foreach (var completion in m_GoalsCompletionTime)
+                foreach (KeyValuePair<Predicate, int> completion in m_GoalsCompletionTime)
                 {
                     m_AgentDomain.AddGoalCompletion(m_AgentProblem, completion.Key, completion.Value);
 

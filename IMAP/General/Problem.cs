@@ -1076,7 +1076,7 @@ namespace IMAP.General
             AddKnown(gp);
         }
 
-        internal List<Predicate> GetGoals()
+        public List<Predicate> GetGoals()
         {
             List<Predicate> Goals = new List<Predicate>();
             Formula fGoal = Goal;
