@@ -23,34 +23,40 @@ namespace IMAP.SDRPlanners
         {
             Domain = d;
             Problem = p;
-            agentSelector = new AgentSelector(d.GetAgents());
+            agentSelector = new AgentSelector(d.GetAgents(), p.GetGoals());
         }
 
         public Dictionary<Constant, PlanResult> Plan()
         {
+            // Set iteration number = 0;
+            int iteration = 0;
             // Initialize SA agent Planner
             SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(Domain, Problem, SDRPlanner.Planners.FF);
 
-            // Get the first agent
-            Constant agent = agentSelector.GetNextAgent();
-
-            while (agent!=null)
+            while (!agentSelector.Finished())
             {
-                // Get constraints from previous iterations
-                List<Action> prevCollabConstraints = agentSelector.GetCollabConstraints(agent);
+                Constant currAgent = agentSelector.GetNextAgent();
 
+                // Inc iteration num
+                iteration += 1;
+
+                // Get constraints from previous iterations
+                //   collab action, sender 
+                List<Tuple<Action,Constant>> prevCollabConstraints = agentSelector.GetCollabConstraints(currAgent);
+
+                // Get goals completion time from previous iterations
+                List<KeyValuePair<Predicate, int>> prevGoalsCompletionTime = agentSelector.GetPrevGoalsCompletionTime(currAgent, Problem);
                 // Plan for current agent
-                PlanResult pr = saSDR.Plan(agent, null, null, prevCollabConstraints);
+                PlanResult pr = saSDR.Plan(currAgent, null, prevGoalsCompletionTime, prevCollabConstraints.Select(x=>x.Item1).ToList());
                 if (pr.Valid)
                 {
                     // 1. Align tree using joint actions
-                    Dictionary<Action, int> JointActionsTimes = pr.GetUsedJointActionsLastTiming(pr.m_agentDomain);
-                    // 2. Extract constraints
+                    //  1.1 Extract constraints (Collaborative actions)
                     //         Agent   , Actions required
-                    Dictionary<Constant, List<Action>> constraints = GetConstraintsForNextAgents(pr);
+                    List<Action> collabUsed = pr.GetConstraintsGeneratedForSelf();
 
-                    // 3. Check if sender of  can commit to the collaborative actions
-                    PlanResult pr_validation = saSDR.Plan(agent, null, null, constraints[agent]);
+                    //  1.2 Check if sender of  can commit to the collaborative actions
+                    PlanResult pr_validation = saSDR.Plan(currAgent, null, prevGoalsCompletionTime, collabUsed);
 
                     if (pr_validation.Valid)
                     {
@@ -58,72 +64,40 @@ namespace IMAP.SDRPlanners
                     }
                     else
                     {
-                        // postpone joint actions until valid
+                        // TODO postpone joint actions until valid
                         throw new NotImplementedException();
                     }
-
+                    //
+                    Dictionary<Constant, List<Action>> constraints = pr.GetNewConstraintsGeneratedForOtherAgents(prevCollabConstraints);
                     // 4. Save collaborative actions' constraints for other agents
+                    // for each target agent
                     foreach (var agentConstraints in constraints)
-                    { 
-                        agentSelector.AddCollabConstraints(agentConstraints.Key, agentConstraints.Value, agent);
+                    {
+                        // for each action that other target agent needs to complete.
+                        foreach (var a in agentConstraints.Value)
+                        {
+                            // add this action to his tasks.
+                            agentSelector.AddCollabConstraints(agentConstraints.Key, a, currAgent);
+                        }    
                     }
 
 
-                    // 5. Save goal completion time
-                    //foreach (var item in pr.GoalsCompletionTime)
-                    //{
-                        //agentSelector.AddGoalCompletionTime()
-                    //}
-                   
-                    
+                    // 5. Save goal completion time, but ignore achieved predicates forced from other agents - he didnt caused that!
+                    var goalTiming = pr.GetGoalsCompletionTime(Problem, prevCollabConstraints.Select(x=>x.Item1).ToList());
+                    foreach (var item in goalTiming)
+                    {
+                        agentSelector.AddGoalCompletionTime(iteration, currAgent, item.Key, item.Value);
+                    }
+                                     
                     // Save plan details
-                    if (!m_AgentsPlans.ContainsKey(agent))
-                        m_AgentsPlans.Add(agent, pr);
+                    if (!m_AgentsPlans.ContainsKey(currAgent))
+                        m_AgentsPlans.Add(currAgent, pr);
                     else
-                        m_AgentsPlans[agent] = pr;
-
-
-                    // Advance to the next agent
-                    agent = agentSelector.GetNextAgent();
-                }
-                else
-                {
-                    agent = agentSelector.GetNextAgent();
+                        m_AgentsPlans[currAgent] = pr;
                 }
             }
             
             return m_AgentsPlans;
-        }
-
-        public Dictionary<Constant, List<Action>> GetConstraintsForNextAgents(PlanResult pr)
-        {
-            // Extract constraints for next agents
-            Dictionary<Action, int> JointActionsTimes = pr.GetUsedJointActionsLastTiming(pr.m_agentDomain);
-            // 
-            Constant agent = pr.m_planningAgent;
-
-            Dictionary<Constant, List<Action>> collabActionsForAgents = new Dictionary<Constant, List<Action>>();
-
-            foreach (var joinAction in JointActionsTimes)
-            {
-                // The secondary actor which have to do this action, the action
-                Tuple<Constant, Action> actionForOther = pr.m_agentDomain.GetCorellativeActionForOtherAgents(joinAction, agent);
-                Tuple<Constant, Action> actionForSelf = pr.m_agentDomain.GetCorellativeActionForOtherAgents(joinAction, agent);
-
-                if (!collabActionsForAgents.ContainsKey(actionForOther.Item1))
-                    collabActionsForAgents.Add(actionForOther.Item1, new List<Action>());
-                collabActionsForAgents[actionForOther.Item1].Add(actionForOther.Item2);
-
-                if (!collabActionsForAgents.ContainsKey(agent))
-                    collabActionsForAgents.Add(agent, new List<Action>());
-                collabActionsForAgents[agent].Add(joinAction.Key);
-            }
-            return collabActionsForAgents;
-        }
-
-        private void PostpondPlanByJointActionsTimes(PlanResult pr, Dictionary<Action, int> jointActionsTimes)
-        {
-            throw new NotImplementedException();
         }
     }
 }

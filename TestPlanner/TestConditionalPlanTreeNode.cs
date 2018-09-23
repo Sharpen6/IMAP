@@ -31,7 +31,7 @@ namespace TestPlanner
             PlanResult pr = ma_result[a1];
             List<Predicate> goals = p.GetGoals();
             Dictionary<Predicate, int> timing = new Dictionary<Predicate, int>();
-            pr.Plan.GetGoalsTiming(goals, ref timing);
+            pr.Plan.GetGoalsTiming(goals, null, ref timing);
             
             string plan = PlanTreePrinter.Print(pr.Plan);
             File.WriteAllText(main_path + "plan_" + a1.Name + ".txt", plan);

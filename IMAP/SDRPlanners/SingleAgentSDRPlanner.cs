@@ -66,7 +66,9 @@ namespace IMAP.SDRPlanners
 
             TimeSpan PlanningTime = DateTime.Now - start;
 
-            PlanResult result = new PlanResult(activeAgent, Plan, PlanningTime, Valid, m_AgentDomain, m_AgentProblem);
+            PlanResult result = new PlanResult(activeAgent, Plan, PlanningTime, Valid,
+                                                goalsCompletionTime, reqActions,
+                                                m_AgentDomain, m_AgentProblem);
 
             return result;
         }

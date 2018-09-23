@@ -49,8 +49,17 @@ namespace IMAP.PlanTree
             return s;
         }
 
-        public void GetGoalsTiming(List<Predicate> goals, ref Dictionary<Predicate, int> goalTimeing)
+        public void GetGoalsTiming(List<Predicate> goals, List<Action> actionsToIgnore, ref Dictionary<Predicate, int> goalTimeing)
         {
+            // Set actions names to ignore
+            List<string> actionsNamesToIgnore;
+            if (actionsToIgnore == null)
+                actionsNamesToIgnore = new List<string>();
+            else
+                actionsNamesToIgnore = actionsToIgnore.Select(x => x.Name).ToList();
+
+
+            // scan for goals achievement
             foreach (Predicate goal in goals)
             {
                 List<IMAP.Action> timestamps = ScanEffectsForConst(goal);
@@ -67,7 +76,9 @@ namespace IMAP.PlanTree
                     }
                 }
 
-                string actionName = earliestAction.GetOperationName();
+                string actionName = earliestAction.Name;
+                if (actionsNamesToIgnore.Contains(actionName))
+                    continue;
 
                 goalTimeing.Add(goal, latest);
             }

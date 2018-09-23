@@ -18,7 +18,7 @@ namespace TestPlanner
             Constant a3 = new Constant("agent", "a3");
             Constant a4 = new Constant("agent", "a4");
 
-            AgentSelector agentSelector = new AgentSelector(new List<Constant>() { a1, a2, a3, a4 });
+            AgentSelector agentSelector = new AgentSelector(new List<Constant>() { a1, a2, a3, a4 }, null);
             Assert.AreEqual(agentSelector.GetNextAgent(), a1);
             Assert.AreEqual(agentSelector.GetNextAgent(), a2);
             Assert.AreEqual(agentSelector.GetNextAgent(), a3);
