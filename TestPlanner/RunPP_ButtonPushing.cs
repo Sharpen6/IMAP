@@ -8,12 +8,12 @@ using IMAP.PlanTree;
 namespace TestPlanner
 {
     [TestClass]
-    public class RunPP_BoxPushing
+    public class RunPP_ButtonPushing
     {
         [TestMethod]
-        public void RunPP_BoxPushing_TestB2()
+        public void RunPP_ButtonmPushing_TestB1()
         {
-            string main_path = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B2\";
+            string main_path = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\ButtonPushing\B1\";
             string filePathProblem = main_path + "p.pddl";
             string filePathDomain = main_path + "d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
@@ -28,9 +28,9 @@ namespace TestPlanner
             Console.WriteLine("Done");
         }
         [TestMethod]
-        public void RunPP_BoxPushing_TestB3()
+        public void RunPP_ButtonmPushing_TestB2()
         {
-            string main_path = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\";
+            string main_path = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\ButtonPushing\B2\";
             string filePathProblem = main_path + "p.pddl";
             string filePathDomain = main_path + "d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");

@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Directory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RunPP_ButtonPushing.cs" />
     <Compile Include="TestAgentSelector.cs" />
     <Compile Include="RunPP_BoxPushing.cs" />
     <Compile Include="TestParse.cs" />

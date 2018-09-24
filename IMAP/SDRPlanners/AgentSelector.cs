@@ -51,7 +51,7 @@ namespace IMAP.SDRPlanners
             int agentIndex = agents.FindIndex(x => x == agent);
             int currentlySelectedAgentIndex = currentlySelected - 1;
             // remove knowledge aquired by agents skipped back
-            for (int i = currentlySelectedAgentIndex; i >= agentIndex; i--)
+            for (int i = currentlySelectedAgentIndex - 1; i >= agentIndex; i--)
             {
                 Constant remAgent = agents[i];
                 // remove goal completion time
@@ -64,8 +64,6 @@ namespace IMAP.SDRPlanners
             }
 
             currentlySelected = agentIndex;
-
-
         }
 
         public List<KeyValuePair<Predicate, int>> GetPrevGoalsCompletionTime(Constant agent, Problem problem)

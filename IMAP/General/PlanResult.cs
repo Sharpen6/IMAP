@@ -132,11 +132,14 @@ namespace IMAP.General
         public List<Action> GetConstraintsGeneratedForSelf()
         {
             // TODO : validate this method.
-
+            Dictionary<Constant, List<Action>> agentsActions = GetConstraintsForNextAgents();
             // Return: Constraints:
             // 1. Requested by previous agents from this agent
             // 2. New constraints generated from joint actions used by this agent.         
-            return GetConstraintsForNextAgents()[m_planningAgent];
+            if (agentsActions.ContainsKey(m_planningAgent))
+                return agentsActions[m_planningAgent];
+            else
+                return new List<Action>();
         }
 
         public Dictionary<Constant, List<Action>> GetConstraintsForNextAgents()

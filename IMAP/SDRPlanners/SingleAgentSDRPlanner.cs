@@ -7,6 +7,7 @@ using IMAP.Formulas;
 using IMAP.General;
 using IMAP.PlanTree;
 using IMAP.Predicates;
+using System.IO;
 
 namespace IMAP.SDRPlanners
 {
@@ -35,7 +36,9 @@ namespace IMAP.SDRPlanners
             this.m_maxTime = IterativeMAPlanner.MAX_TIME;
             this.m_planner = planner;
         }
-        public PlanResult Plan(Constant activeAgent, List<Predicate> activeGoals, List<KeyValuePair<Predicate, int>> goalsCompletionTime, List<Action> reqActions)
+        public PlanResult Plan(Constant activeAgent, List<Predicate> activeGoals,
+                                List<KeyValuePair<Predicate, int>> goalsCompletionTime,
+                                List<Action> reqActions)
         {
             m_AgentDomain = Parser.ParseDomain(m_GeneralDomain.FilePath, m_GeneralDomain.AgentCallsign);
             m_AgentProblem = Parser.ParseProblem(m_GeneralProblem.FilePath, m_AgentDomain);
@@ -54,7 +57,8 @@ namespace IMAP.SDRPlanners
             ConvertToSingleAgentProblem();
             AddPrevCompletionOfGoals();
             SetGoals();
-            AddReasoningActions();
+            //Reasoning not working for button pushing domain
+            //AddReasoningActions();
             AddCosts();
 
             SDRPlanner sdrPlanner = new SDRPlanner(m_AgentDomain, m_AgentProblem, m_planner);
@@ -69,7 +73,9 @@ namespace IMAP.SDRPlanners
             PlanResult result = new PlanResult(activeAgent, Plan, PlanningTime, Valid,
                                                 goalsCompletionTime, reqActions,
                                                 m_AgentDomain, m_AgentProblem);
-
+            // Write plan to file
+            string path = Path.GetDirectoryName(m_AgentDomain.FilePath) + "\\plan_" + m_ActiveAgent.Name + ".txt";
+            File.WriteAllText(path, PlanTreePrinter.Print(result.Plan));
             return result;
         }
         private void ConvertToSingleAgentProblem()
