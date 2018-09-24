@@ -14,8 +14,6 @@ namespace IMAP.SDRPlanners
         private List<GoalCompletionAtIteration> GoalsCompletionTime = new List<GoalCompletionAtIteration>();
         private List<CollaborationRequest> CollborationRequests = new List<CollaborationRequest>();
 
-        private List<Constant> NeedsToPlan;
-
         public AgentSelector()
         {
         }
@@ -24,28 +22,50 @@ namespace IMAP.SDRPlanners
         {
             this.agents = agents;
             this.goals = goals;
-
-            NeedsToPlan = new List<Constant>(agents);
         }
 
         public bool Finished()
         {
-            return NeedsToPlan.Count == 0;
+            return agents.Count == currentlySelected;
         }
 
         /// <summary>
-        /// When first called, the first agent is returned
+        /// Return the next agent that needs to be called 
         /// </summary>
         /// <returns></returns>
         public Constant GetNextAgent()
         {
-            if (NeedsToPlan.Count > 0)
+            if (currentlySelected < agents.Count)
             {
-                Constant agent = NeedsToPlan[0];
-                NeedsToPlan.RemoveAt(0);
+                Constant agent = agents[currentlySelected];
+                currentlySelected += 1;
                 return agent;
             }
-            return null;
+
+            // Index out of bounds
+            return null; 
+        }
+
+        public void SetNextAgent(Constant agent)
+        {
+            int agentIndex = agents.FindIndex(x => x == agent);
+            int currentlySelectedAgentIndex = currentlySelected - 1;
+            // remove knowledge aquired by agents skipped back
+            for (int i = currentlySelectedAgentIndex; i >= agentIndex; i--)
+            {
+                Constant remAgent = agents[i];
+                // remove goal completion time
+                foreach (var goalComp in GoalsCompletionTime.FindAll(x => x.Agent == remAgent))
+                {
+                    goalComp.Invalid = true;
+                }
+
+                // TODO - what about constraints send by them?
+            }
+
+            currentlySelected = agentIndex;
+
+
         }
 
         public List<KeyValuePair<Predicate, int>> GetPrevGoalsCompletionTime(Constant agent, Problem problem)
@@ -55,7 +75,7 @@ namespace IMAP.SDRPlanners
 
             foreach (var goal in goals)
             {
-                GoalCompletionAtIteration history = GoalsCompletionTime.FindLast(x => x.Goal == goal && x.Agent != agent);
+                GoalCompletionAtIteration history = GoalsCompletionTime.FindLast(x => x.Goal == goal && x.Agent != agent && !x.Invalid);
 
                 if (history != null)
                 {
@@ -72,7 +92,7 @@ namespace IMAP.SDRPlanners
             cr.CollaborationRequired = collabAction;
             cr.Sender = senderAgent;
             cr.Receiver = targetAgent;
-
+           
             CollborationRequests.Add(cr);
         }
 
@@ -88,7 +108,12 @@ namespace IMAP.SDRPlanners
             return res;
         }
 
-        public void AddGoalCompletionTime(int iteration, Constant agent, Predicate key, int value)
+        internal void RemoveConstraintsFromSendBy(Constant currAgent)
+        {
+            CollborationRequests.RemoveAll(x => x.Sender == currAgent);
+        }
+
+        public void AddGoalCompletionTime(int iteration, Constant agent, Predicate key, int value, out Constant backtrackToAgent)
         {
             GoalCompletionAtIteration goalCompletion = new GoalCompletionAtIteration();
             goalCompletion.Iteration = iteration;
@@ -96,6 +121,8 @@ namespace IMAP.SDRPlanners
             goalCompletion.Goal = key;
             goalCompletion.MinTime = value;
 
+            // 
+            backtrackToAgent = null;
             // If this goal overrides an existing completion by another agent, return to this agent at the next iteration..
             var overridenCompletion = GoalsCompletionTime.FindLast(x => x.Goal == key);
             if (overridenCompletion != null)
@@ -105,21 +132,9 @@ namespace IMAP.SDRPlanners
                     // in this case, the agent improved the previous time.
                     Constant slowerAgent = overridenCompletion.Agent;
 
-                    // slower agent got beaten by the current agent, let the slower agent to replan, this time. 
-                    // hopefully he would let this goal go next time he replans..
-                    NeedsToPlan.Insert(0, slowerAgent);
-                }
-                else
-                {
-                    if (overridenCompletion.Agent == agent)
-                    {
-
-                    }
-                    else
-                    {
-                        // in this case, the agent used an action that gets the goal instead of using just the get goal action..
-                        throw new Exception();
-                    }
+                    // Slower agent got beaten by the current agent, let the slower agent to replan again.
+                    // This time, hopefully he would let this goal go next time he replans..
+                    backtrackToAgent = slowerAgent;
                 }
             }
             GoalsCompletionTime.Add(goalCompletion);
@@ -131,10 +146,11 @@ namespace IMAP.SDRPlanners
             public Constant Agent { get; set; }
             public Predicate Goal { get; set; }
             public int MinTime { get; set; }
+            public bool Invalid { get; set; }
 
             public override string ToString()
             {
-                return "i:" + Iteration + ", a= " + Agent + ", g= " + Goal + " at " + MinTime;
+                return "i:" + Iteration + ", a= " + Agent + ", g= " + Goal + " at " + MinTime + ", Invalid? " + Invalid;
             }
         }
 

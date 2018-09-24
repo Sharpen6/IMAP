@@ -71,6 +71,7 @@ namespace IMAP.SDRPlanners
                     Dictionary<Constant, List<Action>> constraints = pr.GetNewConstraintsGeneratedForOtherAgents(prevCollabConstraints);
                     // 4. Save collaborative actions' constraints for other agents
                     // for each target agent
+                    agentSelector.RemoveConstraintsFromSendBy(currAgent);
                     foreach (var agentConstraints in constraints)
                     {
                         // for each action that other target agent needs to complete.
@@ -86,7 +87,13 @@ namespace IMAP.SDRPlanners
                     var goalTiming = pr.GetGoalsCompletionTime(Problem, prevCollabConstraints.Select(x=>x.Item1).ToList());
                     foreach (var item in goalTiming)
                     {
-                        agentSelector.AddGoalCompletionTime(iteration, currAgent, item.Key, item.Value);
+                        Constant backtrackToAgent = null;
+                        agentSelector.AddGoalCompletionTime(iteration, currAgent, item.Key, item.Value, out backtrackToAgent);
+                        
+                        // TODO - only backtrack to the earliest agent
+                        // set backtrack if needed
+                        if (backtrackToAgent != null)
+                            agentSelector.SetNextAgent(backtrackToAgent);
                     }
                                      
                     // Save plan details
