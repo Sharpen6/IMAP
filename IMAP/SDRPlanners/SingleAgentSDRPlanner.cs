@@ -53,12 +53,13 @@ namespace IMAP.SDRPlanners
 
             AddNoopAction();
             AddTimeConstraints();
-            AddCollabActionReq();
+            List<Action> extractedActions;
+            AddCollabActionReq(out extractedActions);
             ConvertToSingleAgentProblem();
             AddPrevCompletionOfGoals();
             SetGoals();
             //Reasoning not working for button pushing domain
-            //AddReasoningActions();
+            AddReasoningActions();
             AddCosts();
 
             SDRPlanner sdrPlanner = new SDRPlanner(m_AgentDomain, m_AgentProblem, m_planner);
@@ -68,11 +69,18 @@ namespace IMAP.SDRPlanners
             string s = m_AgentDomain.ToString();
             bool Valid = sdrPlanner.Valid;
 
+            // Return extracted actions to domain
+            foreach (var action in extractedActions)
+            {
+                m_AgentDomain.Actions.Add(action);
+            }
+
             TimeSpan PlanningTime = DateTime.Now - start;
 
             PlanResult result = new PlanResult(activeAgent, Plan, PlanningTime, Valid,
                                                 goalsCompletionTime, reqActions,
-                                                m_AgentDomain, m_AgentProblem);
+                                                m_AgentDomain, m_AgentProblem, 
+                                                m_GeneralDomain, m_GeneralProblem);
             // Write plan to file
             string path = Path.GetDirectoryName(m_AgentDomain.FilePath) + "\\plan_" + m_ActiveAgent.Name + ".txt";
             File.WriteAllText(path, PlanTreePrinter.Print(result.Plan));
@@ -147,51 +155,99 @@ namespace IMAP.SDRPlanners
                 foreach (KeyValuePair<Predicate, int> completion in m_GoalsCompletionTime)
                 {
                     m_AgentDomain.AddGoalCompletion(m_AgentProblem, completion.Key, completion.Value);
-
                 }
             }
         }
-        private void AddCollabActionReq()
+        private void AddCollabActionReq(out List<Action> exctractedActions)
         {
-            if (m_ReqCollabActions != null)
+            exctractedActions = new List<Action>();
+            if (m_ReqCollabActions == null || m_ReqCollabActions.Count == 0)
+                return;
+
+            // If there are collaborative constraints - remove the general action of join push.
+            // TODO in future work - consider the case if you allow a general joint action push - the agent will be able to 
+            // activate new joint pushes before the constraint joint push from other agent - and by that he might create for
+            //himself the ability to use the artifitial joint push by pushing earlier the big box
+            //
+            // For example - constraint joint push send to be activated at t4
+            // +------------+
+            // | B0, a0, a1 | B0 is an heavy box
+            // +------------+
+            //
+            // Iteration 1:
+            // a1 plan : 1. Observe big box -->(t) 2. No-op               --> 3. No-op --> 4. Joint-Push (with a1, new)
+            //
+            // Iteration 2:
+            // a2 plan : 1. Observe big box -->(t) 2. Joint-Push t2 (new) --> 3. No-op --> 4. Art-Joint-Push
+            //                                 (f) 2. No-op               --> 3. No-op --> 4. Art-Joint-Push
+
+            // Until then -- > remove general collaborative action
+            HashSet<string> JointActionsUsed = new HashSet<string>();
+            foreach (var reqAction in m_ReqCollabActions)
             {
-                if (m_ReqCollabActions.Count > 0)
+                JointActionsUsed.Add(reqAction.GetOperationName());
+            }
+            if (JointActionsUsed.Count > 1)
+            {
+                // Multiple joint actions type is not yet supported!
+                throw new Exception();
+            }
+            else
+            {
+                if (JointActionsUsed.Count == 1)
                 {
-                    m_AgentDomain.AddPredicate("sub-goal", "?g", "aGoal");
-                }
-
-
-                int artGoals = 0;
-                foreach (var reqAction in m_ReqCollabActions)
-                {
-                    string predicateName = "sub-goal" + (artGoals++);
-                    GroundedPredicate gp = new GroundedPredicate("sub-goal");
-                    gp.AddConstant(new Constant("aGoal", predicateName));
-
-                    m_AgentDomain.AddConstant("aGoal", predicateName);
-
-                    // Update this goal to the domain and problem;
-                    m_ActiveGoals.Add(gp);
-
-                    m_AgentProblem.AddKnown(gp.Negate());
-
-                    // This action now achieves this goal
-                    reqAction.AddEffect(gp);
-
-                    m_AgentDomain.AddAction(reqAction);
-
-
-
-                    Action counterAction = new Action("art-" + reqAction.Name);
-
-                    Formula cgf = reqAction.Preconditions.GetUnknownPredicates(m_AgentDomain.m_lObservable);
-
-                    counterAction.Preconditions = cgf.Negate(true);
-                    counterAction.AddEffect(gp);
-
-                    m_AgentDomain.AddAction(counterAction);
+                    // Remove general joint action of the same name
+                    string jointActionName = JointActionsUsed.ElementAt(0);
+                    Action generalActionToRemove = null;
+                    foreach (var item in m_AgentDomain.Actions)
+                    {
+                        if (item.GetOperationName() == jointActionName)
+                            generalActionToRemove = item;
+                    }
+                    if (generalActionToRemove != null)
+                    {
+                        m_AgentDomain.Actions.Remove(generalActionToRemove);
+                        exctractedActions.Add(generalActionToRemove);
+                    }
                 }
             }
+
+
+            // Add the notion of sub goals to the domain.
+            m_AgentDomain.AddPredicate("sub-goal", "?g", "aGoal");
+           
+            // Count the number of artifitial goals.
+            int artGoals = 0;
+            
+            // For each required action that needs attention:
+            foreach (var reqAction in m_ReqCollabActions)
+            {
+                // Create sub-goal for this action
+                string predicateName = "sub-goal" + (artGoals++);
+                GroundedPredicate gp = new GroundedPredicate("sub-goal");
+                gp.AddConstant(new Constant("aGoal", predicateName));
+                m_AgentDomain.AddConstant("aGoal", predicateName);
+                // Update this goal to the domain and problem;
+                m_ActiveGoals.Add(gp);
+                // Let it be known that this goal has not been achieved yet
+                m_AgentProblem.AddKnown(gp.Negate());
+                // This action now achieves this goal
+                reqAction.AddEffect(gp);
+                // OK, action is ready. add it to the set of actions
+                m_AgentDomain.AddAction(reqAction);
+
+                // We also need to create a counter-action that can be used in cases in which the previous action 
+                // cannot be used. - only when the agent observes that 
+
+                Action counterAction = new Action("art-" + reqAction.Name);
+
+                Formula cgf = reqAction.Preconditions.GetUnknownPredicates(m_AgentDomain.m_lObservable);
+
+                counterAction.Preconditions = cgf.Negate(true);
+                counterAction.AddEffect(gp);
+
+                m_AgentDomain.AddAction(counterAction);
+            }     
         }
         private void AddReasoningActions()
         {
@@ -212,6 +268,7 @@ namespace IMAP.SDRPlanners
                 m_AgentProblem.AddMetric("(:metric minimize (total-cost))");
             }
         }
+
         private int CostGenerator(Action a)
         {
 

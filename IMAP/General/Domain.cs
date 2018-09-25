@@ -41,9 +41,16 @@ namespace IMAP.General
         public const string FALSE_VALUE = "V_FALSE";
         public const string TRUE_PREDICATE_NAME = "P_TRUE";
 
-        public void AddAction(ParametrizedAction parametrizedAction)
+        public void AddAction(ParametrizedAction parametrizedAction, int atIndex = -1)
         {
-            Actions.Add(parametrizedAction);
+            if (atIndex == -1)
+            {
+                Actions.Add(parametrizedAction);
+            }
+            else
+            {
+                Actions.Insert(atIndex, parametrizedAction);
+            }
         }
 
         public const string FALSE_PREDICATE_NAME = "P_FALSE";
@@ -74,7 +81,7 @@ namespace IMAP.General
             }
         }
 
-        internal Tuple<Constant, Action> GetCorellativeActionForOtherAgents(KeyValuePair<Action, int> a, Constant agent)
+        internal Tuple<Constant, Action> GetCorellativeActionForOtherAgents(KeyValuePair<Action, int> a, Constant agent, Domain generalDomain)
         {
 
             List<Constant> otherAgents = GetAgents().Where(x=>x.Name!=agent.Name).ToList();
@@ -266,8 +273,8 @@ namespace IMAP.General
         public void AddNoopAction()
         {
             // Action - "No Action"
-            ParametrizedAction consumeTimeAction = new ParametrizedAction("no-op");
-            AddAction(consumeTimeAction);
+            ParametrizedAction noopAction = new ParametrizedAction("no-op");
+            AddAction(noopAction, 0);
         }
 
         //CTOR

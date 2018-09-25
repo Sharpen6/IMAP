@@ -18,13 +18,17 @@ namespace IMAP.General
         public Domain m_agentDomain { get; set; }
         public Problem m_agentProblem { get; set; }
 
+        private Domain m_generalDomain;
+        private Problem m_generalProblem;
+
         private List<KeyValuePair<Predicate, int>> goalsCompletionTime;
         private List<Action> reqActions;
 
         private static Dictionary<string, string> CorrelativeActions = new Dictionary<string, string>();
 
         public PlanResult(Constant agent, ConditionalPlanTreeNode plan, TimeSpan planningTime, bool valid,
-            List<KeyValuePair<Predicate, int>> goalsCompletionTime, List<Action> reqActions, Domain d, Problem p)
+            List<KeyValuePair<Predicate, int>> goalsCompletionTime, List<Action> reqActions, Domain d, Problem p,
+            Domain general_d, Problem general_p)
         {
             m_planningAgent = agent;
             Plan = plan;
@@ -32,7 +36,8 @@ namespace IMAP.General
             Valid = valid;
             m_agentDomain = d;
             m_agentProblem = p;
-
+            m_generalDomain = general_d;
+            m_generalProblem = general_p;
             // The plan generated under the following variables..
             this.goalsCompletionTime = goalsCompletionTime;
             this.reqActions = reqActions;
@@ -43,10 +48,11 @@ namespace IMAP.General
             if (Plan == null)
                 return null;
             List<Predicate> goals = problem.GetGoals();
-            Dictionary<Predicate, int> goalTimeing = new Dictionary<Predicate, int>();
-            Plan.GetGoalsTiming(goals, prevCollabConstraints, ref goalTimeing);
+            Dictionary<Predicate, int> goalTiming = new Dictionary<Predicate, int>();
+            List<Action> jointActions = reqActions;
+            Plan.GetGoalsTiming(goals, jointActions, ref goalTiming);
 
-            return goalTimeing;
+            return goalTiming;
         }
         public Dictionary<Action, int> GetUsedJointActionsLastTiming(Domain d)
         {
@@ -100,7 +106,7 @@ namespace IMAP.General
         public Dictionary<Constant, List<Action>> GetNewConstraintsGeneratedForOtherAgents(List<Tuple<Action, Constant>> prevCollabConstraints)
         {
             Dictionary<Constant, List<Action>> filteredConstraints = new Dictionary<Constant, List<Action>>();
-            Dictionary<Constant, List<Action>> allConstraints = GetConstraintsForNextAgents();
+            Dictionary<Constant, List<Action>> allConstraints = GetConstraintsForNextAgents(prevCollabConstraints);
             foreach (var constraint in allConstraints)
             {
                 // Skip constraints from current agent
@@ -142,25 +148,46 @@ namespace IMAP.General
                 return new List<Action>();
         }
 
-        public Dictionary<Constant, List<Action>> GetConstraintsForNextAgents()
+        public Dictionary<Constant, List<Action>> GetConstraintsForNextAgents(List<Tuple<Action, Constant>> prevCollabConstraints = null)
         {
+            if (prevCollabConstraints == null)
+                prevCollabConstraints = new List<Tuple<Action, Constant>>();
+
             // Extract constraints for next agents
             Dictionary<Action, int> JointActionsTimes = GetUsedJointActionsLastTiming(m_agentDomain);
             // 
             Constant agent = m_planningAgent;
 
             Dictionary<Constant, List<Action>> collabActionsForAgents = new Dictionary<Constant, List<Action>>();
-
-            foreach (var joinAction in JointActionsTimes)
+           
+            foreach (var jointAction in JointActionsTimes)
             {
+                // if this joint action was sent by another agent, dont forward it at all.
+                if (prevCollabConstraints.Count(x=>x.Item1.Name == jointAction.Key.Name) > 0)
+                {
+                    continue;
+                }
+
+
+                collabActionsForAgents.Add(agent, new List<Action>() { jointAction.Key.Clone() });
+
+                Action jointActionOtherAgent = jointAction.Key.Clone();
+                string otherAgentName = jointAction.Key.Preconditions.GetAgents(m_agentDomain.AgentCallsign).Where(x=>x!=agent.Name).First();
+                Constant otherAgentObject = m_agentDomain.GetAgents().Where(x => x.Name == otherAgentName).First();
+                jointActionOtherAgent.ChangeAgent(agent, otherAgentObject);
+
+                collabActionsForAgents.Add(otherAgentObject, new List<Action>() { jointActionOtherAgent });
+
+                /*
+
                 // The secondary actor which have to do this action, the action
-                Tuple<Constant, Action> actionForOther = m_agentDomain.GetCorellativeActionForOtherAgents(joinAction, agent);
+                Tuple<Constant, Action> actionForOther = m_agentDomain.GetCorellativeActionForOtherAgents(jointAction, agent, m_generalDomain);
 
                 // Save to static db of correlative actions.
-                if (!CorrelativeActions.ContainsKey(joinAction.Key.Name))
-                    CorrelativeActions.Add(joinAction.Key.Name, actionForOther.Item2.Name);
+                if (!CorrelativeActions.ContainsKey(jointAction.Key.Name))
+                    CorrelativeActions.Add(jointAction.Key.Name, actionForOther.Item2.Name);
                 if (!CorrelativeActions.ContainsKey(actionForOther.Item2.Name))
-                    CorrelativeActions.Add(actionForOther.Item2.Name, joinAction.Key.Name);
+                    CorrelativeActions.Add(actionForOther.Item2.Name, jointAction.Key.Name);
 
                 if (!collabActionsForAgents.ContainsKey(actionForOther.Item1))
                     collabActionsForAgents.Add(actionForOther.Item1, new List<Action>());
@@ -168,7 +195,7 @@ namespace IMAP.General
 
                 if (!collabActionsForAgents.ContainsKey(agent))
                     collabActionsForAgents.Add(agent, new List<Action>());
-                collabActionsForAgents[agent].Add(joinAction.Key);
+                collabActionsForAgents[agent].Add(jointAction.Key);*/
             }
             return collabActionsForAgents;
         }

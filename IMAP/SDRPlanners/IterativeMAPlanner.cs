@@ -47,7 +47,8 @@ namespace IMAP.SDRPlanners
                 // Get goals completion time from previous iterations
                 List<KeyValuePair<Predicate, int>> prevGoalsCompletionTime = agentSelector.GetPrevGoalsCompletionTime(currAgent, Problem);
                 // Plan for current agent
-                PlanResult pr = saSDR.Plan(currAgent, null, prevGoalsCompletionTime, prevCollabConstraints.Select(x=>x.Item1).ToList());
+                var collabReqForCurrentAgent = prevCollabConstraints.Select(x => x.Item1).ToList();
+                PlanResult pr = saSDR.Plan(currAgent, null, prevGoalsCompletionTime, collabReqForCurrentAgent);
                 if (pr.Valid)
                 {
                     // 1. Align tree using joint actions
@@ -71,6 +72,7 @@ namespace IMAP.SDRPlanners
                     Dictionary<Constant, List<Action>> constraints = pr.GetNewConstraintsGeneratedForOtherAgents(prevCollabConstraints);
                     // 4. Save collaborative actions' constraints for other agents
                     // for each target agent
+                    // TODO inser this part into one function (maybe AddCollabConstraints?)
                     agentSelector.RemoveConstraintsFromSendBy(currAgent);
                     foreach (var agentConstraints in constraints)
                     {

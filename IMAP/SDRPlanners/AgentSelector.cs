@@ -96,7 +96,7 @@ namespace IMAP.SDRPlanners
 
         public List<Tuple<Action,Constant>> GetCollabConstraints(Constant agent)
         {
-            List<CollaborationRequest> crs = CollborationRequests.FindAll(x => x.Receiver.Equals(agent));
+            List<CollaborationRequest> crs = CollborationRequests.FindAll(x => x.Receiver.Name == agent.Name && x.Sender.Name != agent.Name);
             if (crs == null) return null;
             List<Tuple<Action, Constant>> res = new List<Tuple<Action, Constant>>();
             foreach (var colabReq in crs)

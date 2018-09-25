@@ -90,6 +90,7 @@
     <Compile Include="General\PlanResult.cs" />
     <Compile Include="General\Problem.cs" />
     <Compile Include="General\RandomGenerator.cs" />
+    <Compile Include="PlanTree\CheckMAPlan.cs" />
     <Compile Include="PlanTree\ConditionalPlanTreeNode.cs" />
     <Compile Include="PlanTree\DomainExtensiveInfo.cs" />
     <Compile Include="PlanTree\PlanDetails.cs" />
