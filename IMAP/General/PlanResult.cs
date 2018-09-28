@@ -112,6 +112,8 @@ namespace IMAP.General
                 // Skip constraints from current agent
                 if (constraint.Key != m_planningAgent)
                 {
+                    filteredConstraints.Add(constraint.Key, new List<Action>());
+
                     List<Action> constraintsForAgent = constraint.Value;
                     foreach (var consAction in constraintsForAgent)
                     {
@@ -121,13 +123,14 @@ namespace IMAP.General
                             string corrAction = CorrelativeActions[consAction.Name];
                             if (prevCollabConstraints.Count(x=>x.Item1.Name == corrAction) == 0)
                             {
-                                filteredConstraints.Add(constraint.Key, constraint.Value);
+                                filteredConstraints[constraint.Key].Add(consAction);
                             }
                         }
                         else
                         {
                             // action not found - it is a new joint action - send it forward..
-                          filteredConstraints.Add(constraint.Key, constraint.Value);
+
+                            filteredConstraints[constraint.Key].Add(consAction);
                         }  
                     }
                 }
@@ -168,15 +171,20 @@ namespace IMAP.General
                     continue;
                 }
 
+                if (!collabActionsForAgents.ContainsKey(agent))
+                    collabActionsForAgents.Add(agent, new List<Action>());
 
-                collabActionsForAgents.Add(agent, new List<Action>() { jointAction.Key.Clone() });
+                collabActionsForAgents[agent].Add(jointAction.Key.Clone());
 
                 Action jointActionOtherAgent = jointAction.Key.Clone();
                 string otherAgentName = jointAction.Key.Preconditions.GetAgents(m_agentDomain.AgentCallsign).Where(x=>x!=agent.Name).First();
                 Constant otherAgentObject = m_agentDomain.GetAgents().Where(x => x.Name == otherAgentName).First();
                 jointActionOtherAgent.ChangeAgent(agent, otherAgentObject);
 
-                collabActionsForAgents.Add(otherAgentObject, new List<Action>() { jointActionOtherAgent });
+
+                if (!collabActionsForAgents.ContainsKey(otherAgentObject))
+                    collabActionsForAgents.Add(otherAgentObject, new List<Action>());
+                collabActionsForAgents[otherAgentObject].Add(jointActionOtherAgent);
 
                 /*
 
