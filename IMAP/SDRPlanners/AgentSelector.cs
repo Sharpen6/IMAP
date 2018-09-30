@@ -122,7 +122,7 @@ namespace IMAP.SDRPlanners
             // 
             backtrackToAgent = null;
             // If this goal overrides an existing completion by another agent, return to this agent at the next iteration..
-            var overridenCompletion = GoalsCompletionTime.FindLast(x => x.Goal == key);
+            var overridenCompletion = GoalsCompletionTime.FindLast(x => x.Goal == key && !x.Invalid);
             if (overridenCompletion != null)
             {
                 if (value < overridenCompletion.MinTime)
@@ -133,9 +133,14 @@ namespace IMAP.SDRPlanners
                     // Slower agent got beaten by the current agent, let the slower agent to replan again.
                     // This time, hopefully he would let this goal go next time he replans..
                     backtrackToAgent = slowerAgent;
+                    GoalsCompletionTime.Add(goalCompletion);
                 }
             }
-            GoalsCompletionTime.Add(goalCompletion);
+            else
+            {
+                GoalsCompletionTime.Add(goalCompletion);
+            }
+            
         }
 
         private class GoalCompletionAtIteration

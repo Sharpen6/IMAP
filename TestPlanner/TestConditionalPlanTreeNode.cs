@@ -35,7 +35,7 @@ namespace TestPlanner
             
             string plan = PlanTreePrinter.Print(pr.Plan);
             File.WriteAllText(main_path + "plan_" + a1.Name + ".txt", plan);
-            Assert.AreEqual(timing.Count, p.GetGoals().Count);
+            Assert.AreEqual(timing.Count, p.GetGoals().Count - 1);
         }
     }
 }

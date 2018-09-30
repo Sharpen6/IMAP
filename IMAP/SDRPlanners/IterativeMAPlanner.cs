@@ -104,6 +104,11 @@ namespace IMAP.SDRPlanners
                     else
                         m_AgentsPlans[currAgent] = pr;
                 }
+                else
+                {
+                    // failed to plan (without alignment)
+                    Console.WriteLine("Agent " + currAgent.Name + " failed to plan");
+                }
             }
             
             return m_AgentsPlans;

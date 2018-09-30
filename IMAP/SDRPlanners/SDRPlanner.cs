@@ -1197,6 +1197,8 @@ namespace IMAP.SDRPlanners
             int counter = 0;
             int cFoundClosedStates = 0, cFoundOpenStates = 0;
             Formula fObserved = null;
+            bool retryFailed = false;
+
             while (!bDone)
             {
                 if (stateStack.Count == 0)
@@ -1258,9 +1260,12 @@ namespace IMAP.SDRPlanners
 
                         if (lPlan == null)
                         {
-                            Debug.WriteLine(" planning ( attempt: "+ attemptNum++ + ")");
+                            Debug.WriteLine(" planning ( attempt: " + attemptNum++ + ")");
                             if (attemptNum > 3)
-                                break;
+                            {
+                                retryFailed = true;
+                                return null;
+                            }
 
                             switch (Planner)
                             {
@@ -1327,7 +1332,7 @@ namespace IMAP.SDRPlanners
                             if (lPlan == null && attemptNum++ == 0) // sagi - allow 0 failures
                                 return null;
                             */
-                            
+
                         }
                         tsInPlanning += DateTime.Now - dtBefore;
                     }
@@ -1386,7 +1391,7 @@ namespace IMAP.SDRPlanners
                         }
                         else
                         {
-                                
+
                             // if (pssCurrent.ID == 59 || (psTrueState != null && psTrueState.ID == 59) || (psFalseState != null && psFalseState.ID == 59))
                             //   Console.Write("dd");
                             pssCurrent.MarkVisited(alreadyVisitedStates);
@@ -1438,8 +1443,8 @@ namespace IMAP.SDRPlanners
                         }
 
                         cActions++;
-                            
-                        if (pssCurrent!=null) // sagi  - pss current state was null when added effect and goal predicat for joint action
+
+                        if (pssCurrent != null) // sagi  - pss current state was null when added effect and goal predicat for joint action
                             bGoalReached = pssCurrent.IsGoalState();
                         if (bGoalReached)
                         {
@@ -1463,23 +1468,32 @@ namespace IMAP.SDRPlanners
             DateTime dtEnd = DateTime.Now;
             Console.WriteLine(Data.Domain.Name + " done planning, time " + (dtEnd - dtStart).TotalSeconds + " , checking plan validity");
 
-            StreamWriter sw;
-            if (Translation == Translations.BestCase || Translation == Translations.Conformant)
-                if (pssInitial.MinMishapCount == 0)
-                    sw = new StreamWriter(Data.Path + "CPORoutputBestCase.txt");
-                else
-                    sw = new StreamWriter(Data.Path + "CPORoutputMishHap" + pssInitial.MinMishapCount + ".txt");
-
-            else
-                sw = new StreamWriter(Data.Path + "CPORoutput.txt");
-
-            sw.Write(pssInitial.Plan.ToString());
-            sw.Close();
+            //StreamWriter sw;
+            //if (Translation == Translations.BestCase || Translation == Translations.Conformant)
+            //    if (pssInitial.MinMishapCount == 0)
+            //        sw = new StreamWriter(Data.Path + "CPORoutputBestCase.txt");
+            //    else
+            //        sw = new StreamWriter(Data.Path + "CPORoutputMishHap" + pssInitial.MinMishapCount + ".txt");
+            //
+            //else
+            //    sw = new StreamWriter(Data.Path + "CPORoutput.txt");
+            //
+            //sw.Write(pssInitial.Plan.ToString());
+            //sw.Close();
 
             List<string> ll = new List<string>();
             string sPlan = PlanTreePrinter.Print(pssInitial.Plan);
             //bool bValid = CheckPlan(pssInitial, pssInitial.Plan, new List<ConditionalPlanTreeNode>(), ll);
-            bool bValid = pssInitial.Plan != null;
+            bool bValid;
+            if (pssInitial.Plan != null && !retryFailed)
+            {
+                bValid = true;
+            }
+            else
+            {
+                bValid = false;
+            }
+        
             if (!bValid)
                 Console.WriteLine("error");
             else

@@ -49,7 +49,8 @@ namespace IMAP.General
                 return null;
             List<Predicate> goals = problem.GetGoals();
             Dictionary<Predicate, int> goalTiming = new Dictionary<Predicate, int>();
-            List<Action> jointActions = reqActions;
+            //List<Action> jointActions = reqActions;
+            List<Action> jointActions = new List<Action>();
             Plan.GetGoalsTiming(goals, jointActions, ref goalTiming);
 
             return goalTiming;
