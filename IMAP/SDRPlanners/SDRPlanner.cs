@@ -18,7 +18,7 @@ namespace IMAP.SDRPlanners
     {
         public static bool SDR_OBS { set; get; }
         // FP Requires Python
-        public enum Planners { MetricFF, SymBA, FF, FFsa, FFha, MIPS, LPG, FD, CPT }
+        public enum Planners { MetricFF, SymBA, FF, FFsa, FFWithParam , FFha, MIPS, LPG, FD, CPT }
         public enum Translations { SDR, MPSRTagPartitions, MPSRTags, BestCase, Conformant, SingleStateK }
         public static bool AllowChoosingNonDeterministicOptions =true;
         private static Dictionary<Thread, Process> FFProcesses = new Dictionary<Thread, Process>();
@@ -46,6 +46,10 @@ namespace IMAP.SDRPlanners
                         break;
                     case Planners.FF:
                         UseFilesForPlanners = false;
+                        AddActionCosts = false;
+                        break;
+                    case Planners.FFWithParam:
+                        UseFilesForPlanners = true;
                         AddActionCosts = false;
                         break;
                     case Planners.FFsa:
@@ -99,6 +103,7 @@ namespace IMAP.SDRPlanners
 
         public static string AgentName { get; set; }
         public static string MetricFFsParam { get; private set; }
+        public const int MAX_ATTEMPTS = 3; 
 
         private string m_sFFOutput;
 
@@ -132,25 +137,6 @@ namespace IMAP.SDRPlanners
             TagsCount = 2;
             iStep = 0;
         }
-        /*List<string> Plan(string sPath, PartiallySpecifiedState pssCurrent, int cPlans, out State sChosen,ref List<Action> cPlan)
-        {
-            sChosen = null;
-            List<State> lChosen = new List<State>();
-            List<List<string>> lPlans = new List<List<string>>();
-            
-            for (int iPlan = 0; iPlan < cPlans; iPlan++)
-            {
-                State sCurrentChosen = null;
-                List<string> lPlan = Plan(sPath, pssCurrent, out sCurrentChosen,ref cPlan);
-                lPlans.Add(lPlan);
-                lChosen.Add(sCurrentChosen);
-                if (iPlan == 0)
-                    sChosen = sCurrentChosen;
-            }
-             
-            return ChooseMaximumLengthPrefix(lPlans);
-        }*/
-
         private List<string> ChooseMaximumLengthPrefix(List<List<string>> lPlans)
         {
             List<List<string>> lCandidates = new List<List<string>>();
@@ -327,8 +313,14 @@ namespace IMAP.SDRPlanners
 
             if (Planner == Planners.FF)
             {
-                string plannerPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName + "\\Planners\\FF\\ff-v2.3.exe";
+                string plannerPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName + "\\Planners\\FF\\ff.exe";
                 p.StartInfo.FileName = plannerPath;
+            }
+            if (Planner == Planners.FFWithParam)
+            {
+                string plannerPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName + "\\Planners\\FF\\ff-param.exe";
+                p.StartInfo.FileName = plannerPath;
+                Program.RedirectShellOutput = true;
             }
 
             if (Planner == Planners.MetricFF)
@@ -603,6 +595,23 @@ namespace IMAP.SDRPlanners
                 bool bInPlan = false;
                 switch (SDRPlanner.Planner)
                 {
+                    case Planners.FFWithParam:
+                        if (m_sFFOutput.Contains("found legal plan as follows"))
+                        {
+                            string sPlan = m_sFFOutput.Substring(m_sFFOutput.IndexOf("found legal plan as follows"));
+                            string[] asPlan = sPlan.Split('\n');
+                            for (int i = 1; i < asPlan.Length; i++)
+                            {
+                                if (!asPlan[i].Contains(":"))
+                                    continue;
+                                if (asPlan[i].Contains("time spent"))
+                                    break;
+                                lPlan.Add(asPlan[i].Substring(asPlan[i].IndexOf(':') + 2).Trim().ToLower());
+                            }
+                        }
+                        else
+                            return null;
+                        break;
                     case Planners.MetricFF:
                         if (m_sFFOutput.Contains("found legal plan as follows"))
                         {
@@ -1211,9 +1220,6 @@ namespace IMAP.SDRPlanners
                     pssCurrent = stateStack.Pop();
                 }
                 List<string> lPlan = null;
-                List<string> lPlanV1 = null;
-                List<string> lPlanV2 = null;
-
                 List<Action> cPlan = null;
 
                 int attemptNum = 0;
@@ -1225,7 +1231,8 @@ namespace IMAP.SDRPlanners
                         //+ " |TC|=" + PartiallySpecifiedState.MaxTreeSize
 
                         );
-
+                    
+                    DateTime dtBefore = DateTime.Now;
                     if (pssCurrent.IsClosedState(lClosedStates))
                     {
                         Debug.WriteLine(" plan found");
@@ -1252,8 +1259,6 @@ namespace IMAP.SDRPlanners
                     }
                     else
                     {
-                        DateTime dtBefore = DateTime.Now;
-
 
                         cPlanning++;
                         lPlan = null;
@@ -1267,76 +1272,13 @@ namespace IMAP.SDRPlanners
                                 return null;
                             }
 
-                            switch (Planner)
-                            {
-                                case Planners.MetricFF:
-                                    break;
-                                case Planners.SymBA:
-                                    break;
-                                case Planners.FF:
-                                    lPlan = Plan(Data.Path, pssCurrent, out sChosen, ref cPlan);
-                                    break;
-                                case Planners.FFsa:
-                                    break;
-                                case Planners.FFha:
-                                    break;
-                                case Planners.MIPS:
-                                    break;
-                                case Planners.LPG:
-                                    break;
-                                case Planners.FD:
-                                    break;
-                                case Planners.CPT:
-                                    break;
-                                default:
-                                    break;
-                            }
-
-
-                            /* need another flag for mishaps
-                            if (pssInitial.MinMishapCount > 0)
-                            {
-                                SDRPlanner.Translation = Translations.Conformant;
-                                lPlan = Plan(sPath, pssCurrent, out sChosen, ref cPlan);
-                            }
-                            else
-                                lPlan = null;
-                            if (lPlan == null)
-                            {
-                                SDRPlanner.Translation = Translations.BestCase;
-                                lPlan = Plan(sPath, pssCurrent, out sChosen,ref cPlan);
-                                if (lPlan == null)
-                                    Console.WriteLine("BUGBUG");
-                            }
-                            */
-                            /*
-                            if (Planner == Planners.MetricFF)
-                            {
-                                // Pick the best parameter from metric FF
-                                MetricFFsParam = "3";
-                                lPlanV1 = Plan(Data.Path, pssCurrent, out sChosen, ref cPlan);
-                                //MetricFFsParam = "5";
-                                //lPlanV2 = Plan(sPath, pssCurrent, out sChosen, ref cPlan);
-
-                                if (lPlanV1 != null && lPlanV2 != null)
-                                {
-                                    lPlan = lPlanV1.Count <= lPlanV2.Count ? lPlanV1 : lPlanV2;
-                                }
-                                else if (lPlanV1 == null && lPlanV2 != null) lPlan = lPlanV2;
-                                else lPlan = lPlanV1;
-                            }
-                            else
-                            {
-                                lPlan = Plan(Data.Path, pssCurrent, out sChosen, ref cPlan);
-                            }
-                            if (lPlan == null && attemptNum++ == 0) // sagi - allow 0 failures
-                                return null;
-                            */
+                            lPlan = Plan(Data.Path, pssCurrent, out sChosen, ref cPlan);
 
                         }
                         tsInPlanning += DateTime.Now - dtBefore;
                     }
                 }
+
                 PartiallySpecifiedState pssPlanState = pssCurrent;
 
                 counter++;
@@ -1344,15 +1286,8 @@ namespace IMAP.SDRPlanners
                 if (lPlan != null)
                 {
                     lExecutedPlans.Add(new List<string>());
-                    int actionIndex = -1;
                     foreach (string sAction in lPlan)
                     {
-                        actionIndex++;
-                        //if (IsReasoningAction(sAction.ToLower()))
-                        //{
-                        //    continue;
-                        //}
-
                         PartiallySpecifiedState psTrueState, psFalseState;
                         lExecutedPlans.Last().Add(sAction);
                         Action a = null;
@@ -1364,8 +1299,9 @@ namespace IMAP.SDRPlanners
                             pssCurrent.UpdateClosedStates(lClosedStates, alreadyVisitedStates, Data.Domain);
                             pssCurrent = null;
                             break;
-                        }
 
+                        }
+                        
                         if (pssCurrent.AlreadyVisited(alreadyVisitedStates))
                         {
                             //Debug.WriteLine("Visited state found " + pssCurrent.ID + " == " + alreadyVisitedStates[pssCurrent].ID);
@@ -1374,8 +1310,8 @@ namespace IMAP.SDRPlanners
                             cFoundOpenStates++;
                             pssCurrent = null;
                             break;
+                        
                         }
-
 
                         pssCurrent.ApplyOffline(sAction, out a, out fObserved, out psTrueState, out psFalseState);
 
@@ -1394,7 +1330,7 @@ namespace IMAP.SDRPlanners
 
                             // if (pssCurrent.ID == 59 || (psTrueState != null && psTrueState.ID == 59) || (psFalseState != null && psFalseState.ID == 59))
                             //   Console.Write("dd");
-                            pssCurrent.MarkVisited(alreadyVisitedStates);
+                           // pssCurrent.MarkVisited(alreadyVisitedStates);
 
                             //Console.WriteLine(pssCurrent.ID + "=>" + psTrueState.ID);
 
@@ -1429,6 +1365,8 @@ namespace IMAP.SDRPlanners
                             }
                             else
                             {
+                                pssCurrent = psTrueState;
+                                
                                 // sagi - wait-goal can cause outcome to become only be false
                                 if (psFalseState != null && psTrueState == null)
                                 {
@@ -1437,7 +1375,6 @@ namespace IMAP.SDRPlanners
                                 else
                                 {
                                     pssCurrent = psTrueState;
-
                                 }
                             }
                         }

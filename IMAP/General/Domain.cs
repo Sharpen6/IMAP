@@ -995,8 +995,8 @@ namespace IMAP.General
                 if (bRequireP)
                     cfAnd.SimpleAddOperand(pObserve);
                 //cfAnd.AddOperand(gpNotK);
-                //cfAnd.AddOperand(kp.Negate());
-                //cfAnd.AddOperand(knp.Negate());
+                cfAnd.AddOperand(kp.Negate());
+                cfAnd.AddOperand(knp.Negate());
                 aKT.Preconditions = cfAnd;
                 ((CompoundFormula)aKT.Effects).SimpleAddOperand(kp);
                 if (lNegativePreconditions.Count != 0)

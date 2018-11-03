@@ -14,16 +14,19 @@ namespace IMAP.SDRPlanners
 
         public Domain Domain { get; set; }
         public Problem Problem { get; set; }
+        public SDRPlanner.Planners m_planner { get; }
 
         private AgentSelector agentSelector;
 
         private Dictionary<Constant, PlanResult> m_AgentsPlans = new Dictionary<Constant, PlanResult>();
 
-        public IterativeMAPlanner(Domain d, Problem p)
+        public IterativeMAPlanner(Domain d, Problem p, SDRPlanner.Planners planner)
         {
             Domain = d;
             Problem = p;
+            m_planner = planner;
             agentSelector = new AgentSelector(d.GetAgents(), p.GetGoals());
+
         }
 
         public Dictionary<Constant, PlanResult> Plan()
@@ -31,7 +34,7 @@ namespace IMAP.SDRPlanners
             // Set iteration number = 0;
             int iteration = 0;
             // Initialize SA agent Planner
-            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(Domain, Problem, SDRPlanner.Planners.FF);
+            SingleAgentSDRPlanner saSDR = new SingleAgentSDRPlanner(Domain, Problem, m_planner);
 
             while (!agentSelector.Finished())
             {

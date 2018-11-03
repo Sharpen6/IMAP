@@ -19,7 +19,7 @@ namespace TestPlanner
             string filePathDomain = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\BoxPushing\B3\d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p);
+            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p, SDRPlanner.Planners.FF);
             var result = ma_planner.Plan();
             Assert.AreEqual(result.Count, 2);
         }
@@ -31,7 +31,7 @@ namespace TestPlanner
             string filePathDomain = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\ButtonPushing\B2\d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p);
+            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p, SDRPlanner.Planners.FF);
             var result = ma_planner.Plan();
             Assert.AreEqual(result.Count, 2);
         }

@@ -18,7 +18,7 @@ namespace TestPlanner
             string filePathDomain = main_path + "d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p);
+            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p, SDRPlanner.Planners.FF);
             var result = ma_planner.Plan();
             foreach (var res in result)
             {
@@ -37,7 +37,7 @@ namespace TestPlanner
             string filePathDomain = main_path + "d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p);
+            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p, SDRPlanner.Planners.FF);
             var result = ma_planner.Plan();
             foreach (var res in result)
             {
@@ -55,7 +55,7 @@ namespace TestPlanner
             string filePathDomain = main_path + "d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p);
+            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p, SDRPlanner.Planners.FF);
             var result = ma_planner.Plan();
             foreach (var res in result)
             {
@@ -74,7 +74,7 @@ namespace TestPlanner
             string filePathDomain = main_path + "d.pddl";
             Domain d = Parser.ParseDomain(filePathDomain, "agent");
             Problem p = Parser.ParseProblem(filePathProblem, d);
-            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p);
+            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p, SDRPlanner.Planners.FF);
             var result = ma_planner.Plan();
             foreach (var res in result)
             {

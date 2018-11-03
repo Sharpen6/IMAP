@@ -59,8 +59,8 @@ namespace IMAP.SDRPlanners
             AddPrevCompletionOfGoals();
             SetGoals();
             //Reasoning not working for button pushing domain
-            //AddReasoningActions();
-            AddCosts();
+            AddReasoningActions();
+            //AddCosts();
 
             SDRPlanner sdrPlanner = new SDRPlanner(m_AgentDomain, m_AgentProblem, m_planner);
             string s1 = m_AgentDomain.ToString();

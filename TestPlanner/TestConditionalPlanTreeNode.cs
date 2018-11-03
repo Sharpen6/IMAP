@@ -23,7 +23,7 @@ namespace TestPlanner
             Problem p = Parser.ParseProblem(filePathProblem, d);
 
 
-            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p);
+            IterativeMAPlanner ma_planner = new IterativeMAPlanner(d, p, SDRPlanner.Planners.FF);
             var ma_result = ma_planner.Plan();
             Assert.IsNotNull(ma_result);
 
