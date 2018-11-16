@@ -514,7 +514,6 @@ namespace IMAP.Formulas
             }
             return this;
         }
-
         public override Formula GetKnowledgeFormula(List<string> lAlwaysKnown, bool bKnowWhether, HashSet<Predicate> lNegativePreconditions)
         {
             CompoundFormula cf = new CompoundFormula("and");
@@ -577,7 +576,8 @@ namespace IMAP.Formulas
         {
             if (Predicate is ParameterizedPredicate)
                 return Predicate.ContainsParameter(argument);
-            else return false;
+            else
+                return false;
         }
         internal override int CountAgents(string sAgentCallsign)
         {

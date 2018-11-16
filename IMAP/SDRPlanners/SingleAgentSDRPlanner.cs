@@ -110,12 +110,14 @@ namespace IMAP.SDRPlanners
             
             ParameterizedPredicate activeAgentParamPredicateJoint = new ParameterizedPredicate("active-agent");
             Parameter pIsAgentJoint = new Parameter(m_AgentDomain.AgentCallsign, "?a1");
+
             activeAgentParamPredicateJoint.AddParameter(pIsAgentJoint);
 
 
             foreach (var action in m_AgentDomain.Actions)
             {
                 Action originalAction = action.Clone();
+                
                 if (action.Preconditions.ContainsParameter(pIsAgent) || action.Preconditions.ContainsParameter(pIsAgentJoint))
                 {
                     if (action.Preconditions.CountAgents(m_AgentDomain.AgentCallsign) > 1)
@@ -124,8 +126,15 @@ namespace IMAP.SDRPlanners
                         ParameterizedPredicate paramPredicateAgentAt = new ParameterizedPredicate("agent-at");
                         paramPredicateAgentAt.AddParameter(new Parameter(m_AgentDomain.AgentCallsign, "?a2"));
                         paramPredicateAgentAt.AddParameter(new Parameter("pos", "?start"));
-
                         action.Preconditions.RemovePredicate(paramPredicateAgentAt);
+
+
+                        // Joint Action Disaster site
+                        ParameterizedPredicate paramPredicateIn = new ParameterizedPredicate("in");
+                        paramPredicateIn.AddParameter(new Parameter(m_AgentDomain.AgentCallsign, "?a2"));
+                        paramPredicateIn.AddParameter(new Parameter("location", "?r1"));
+                        action.Preconditions.RemovePredicate(paramPredicateIn);
+
                         action.Preconditions.AddPredicate(activeAgentParamPredicateJoint);
                     }
                     else
