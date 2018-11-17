@@ -251,10 +251,12 @@ namespace IMAP.SDRPlanners
                 Action counterAction = new Action("art-" + reqAction.Name);
 
                 Formula cgf = reqAction.Preconditions.GetUnknownPredicates(m_AgentDomain.m_lObservable);
-
                 counterAction.Preconditions = cgf.Negate(true);
                 counterAction.AddEffect(gp);
-
+                //Formula cf = reqAction.Effects.Clone();
+                //cf.RemoveTime();
+                //counterAction.Effects = cf;
+                //counterAction.AddEffect(reqAction.Effects);
                 m_AgentDomain.AddAction(counterAction);
             }     
         }

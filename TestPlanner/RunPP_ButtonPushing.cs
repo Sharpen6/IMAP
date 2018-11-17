@@ -11,7 +11,7 @@ namespace TestPlanner
     public class RunPP_ButtonPushing
     {
         [TestMethod]
-        public void RunPP_ButtonmPushing_TestB1()
+        public void RunPP_ButtonPushing_TestB1()
         {
             string main_path = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.Parent.FullName + @"\PlanningProblems\ButtonPushing\B1\";
             string filePathProblem = main_path + "p.pddl";

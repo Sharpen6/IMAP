@@ -100,7 +100,6 @@ namespace IMAP.General
                 actionsTime.Add(action.Value, action.Value.GetTime());
             }
 
-   
             return actionsTime;
         }
 
