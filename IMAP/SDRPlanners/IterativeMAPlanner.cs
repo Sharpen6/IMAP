@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IMAP.Formulas;
 using IMAP.General;
 using IMAP.Predicates;
 
@@ -87,19 +88,39 @@ namespace IMAP.SDRPlanners
                         }    
                     }
 
-
+                    // collect effects from joint actions that has been completed
+                    // mark goal achiement time to 0 for goals obtained by joint actions - 
+                    // for disabling improving joint actions
+                    HashSet<Predicate> effects = new HashSet<Predicate>();
+                    foreach (var item in prevCollabConstraints)
+                    {
+                        foreach (Predicate p in item.Item1.Effects.GetAllPredicates())
+                        {
+                            effects.Add(p);
+                        } 
+                    }
                     // 5. Save goal completion time, but ignore achieved predicates forced from other agents - he didnt caused that!
                     var goalTiming = pr.GetGoalsCompletionTime(Problem, prevCollabConstraints.Select(x=>x.Item1).ToList());
                     foreach (var item in goalTiming)
                     {
-                        Constant backtrackToAgent = null;
-                        agentSelector.AddGoalCompletionTime(iteration, currAgent, item.Key, item.Value, out backtrackToAgent);
+                        bool jumped = false;
+                        int newTime = item.Value;
+                        if (item.Key.IsContainedIn(effects.ToList()))
+                        {
+                            newTime = 1;
+                            jumped = true;
+                        }
+
+                        Constant backtrackToAgent = null;               
+                        agentSelector.AddGoalCompletionTime(iteration, currAgent, item.Key, newTime, out backtrackToAgent);
                         
                         // TODO - only backtrack to the earliest agent
                         // set backtrack if needed
-                        if (backtrackToAgent != null)
+                        if (backtrackToAgent != null && !jumped)
                             agentSelector.SetNextAgent(backtrackToAgent);
                     }
+
+                   
                                      
                     // Save plan details
                     if (!m_AgentsPlans.ContainsKey(currAgent))

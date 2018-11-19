@@ -252,6 +252,8 @@ namespace IMAP.SDRPlanners
 
                 Formula cgf = reqAction.Preconditions.GetUnknownPredicates(m_AgentDomain.m_lObservable);
                 counterAction.Preconditions = cgf.Negate(true);
+                //counterAction.Preconditions.AddTime
+                //counterAction.Preconditions = counterAction.Preconditions.AddTime(reqAction.GetTime());
                 counterAction.AddEffect(gp);
                 //Formula cf = reqAction.Effects.Clone();
                 //cf.RemoveTime();

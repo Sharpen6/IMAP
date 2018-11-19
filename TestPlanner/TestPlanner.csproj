@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Directory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RunPP_Rovers.cs" />
     <Compile Include="RunPP_RescueOperation.cs" />
     <Compile Include="RunPP_TableMoving.cs" />
     <Compile Include="RunPP_ConstAgentsBoxPushing.cs" />
