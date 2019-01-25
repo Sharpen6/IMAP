@@ -421,6 +421,38 @@ namespace IMAP.General
 
             return sKP + ")";
         }
+
+        public List<PartiallySpecifiedState> GetInitialStates()
+        {
+            List<PartiallySpecifiedState> lpssInitialPossibleStates = new List<PartiallySpecifiedState>();
+            BeliefState bsInitial = GetInitialBelief();//, bsCurrent = bsInitial, bsNext = null;
+            PartiallySpecifiedState pssInitial = bsInitial.GetPartiallySpecifiedState();
+
+            lpssInitialPossibleStates.Add(pssInitial);
+
+            foreach (var hiddenItems in Hidden)
+            {
+                if (hiddenItems is CompoundFormula)
+                {
+                    List<PartiallySpecifiedState> stateAdditions = new List<PartiallySpecifiedState>();
+                    foreach (var item in hiddenItems.Operands)
+                    {
+                        foreach (var pssCurrentCheckedState in lpssInitialPossibleStates)
+                        {
+                            PartiallySpecifiedState pssNew = pssCurrentCheckedState.Clone();
+                            pssNew.AddObserved(item);
+                            stateAdditions.Add(pssNew);
+                        }
+                    }
+                    lpssInitialPossibleStates = stateAdditions;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            return lpssInitialPossibleStates;
+        }
         public BeliefState GetInitialBelief()
         {
             Debug.WriteLine("Generating initial belief state");

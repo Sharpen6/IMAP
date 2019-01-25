@@ -1,6 +1,7 @@
 ﻿using IMAP.Formulas;
 using IMAP.General;
 using IMAP.Predicates;
+using IMAP.SDRPlanners;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,53 @@ namespace IMAP.PlanTree
 {
     public class CheckMAPlan
     {
+        public static bool IsValid2(Domain d, Problem p, Dictionary<Constant, PlanResult> plans)
+        {
+            bool valid = true;
+            var AllInitialStates = p.GetInitialStates();
+            // for each possible initial state - 
+            foreach (var initialState in AllInitialStates)
+            {
+                bool isPlanValidForInitialSetting = CheckPlansOnSingleInitialState(initialState, plans, p.GetGoals());
+                // if plans are not valid for any branch, set to fail.
+                if (isPlanValidForInitialSetting == false)
+                {
+                    valid = false;
+                }
+            }
+            return valid;
+        }
+
+        private static bool CheckPlansOnSingleInitialState(PartiallySpecifiedState initialState, Dictionary<Constant, PlanResult> plans, List<Predicate> goals)
+        {
+            List<Action> actionsList = GenerateJointActionsListForSingleInitialState(initialState, plans);
+            List<Predicate> collectedPredicate = new List<Predicate>();
+            PartiallySpecifiedState currentState = initialState.Clone();
+            foreach (var action in actionsList)
+            {
+                currentState.ApplyOffline(action, out Formula obs, out PartiallySpecifiedState psTrue, out PartiallySpecifiedState psFalse);
+                currentState = psTrue;
+            }
+            if (currentState.IsGoalState())
+                return true;
+            else
+                return false;
+        }
+
+        private static List<Action> GenerateJointActionsListForSingleInitialState(PartiallySpecifiedState initialState, Dictionary<Constant, PlanResult> plans)
+        {
+            foreach (var agentPlan in plans)
+            {
+                Constant agent = agentPlan.Key;
+                PlanResult planResult = agentPlan.Value;
+                ConditionalPlanTreeNode cptn = planResult.Plan;
+                List<Action> actions = new List<Action>();
+                cptn.GetActionUsed(ref actions);
+                return actions;
+            }
+            return null;
+        }
+
         // 
         public static bool IsValid(Dictionary<Constant, PlanResult> plans)
         {

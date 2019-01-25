@@ -105,7 +105,7 @@ namespace IMAP.Forms
             Domain m_dTmpDomain = Parser.ParseDomain(m_DomainPath, txtAgentCallsign.Text);
             Problem m_pTmpProblem = Parser.ParseProblem(m_ProblemPath, m_dTmpDomain);
 
-            List<PartiallySpecifiedState> initialStates = GetInitialStates(m_pTmpProblem);
+            List<PartiallySpecifiedState> initialStates = m_pTmpProblem.GetInitialStates();
             List<PartiallySpecifiedState> numberOfStates = SearchAllStates(m_dTmpDomain, initialStates);
             lblStatesNumber.Text = numberOfStates.Count.ToString();
         }
@@ -117,7 +117,7 @@ namespace IMAP.Forms
             if (d != null && p != null)
             {
                 Text = d.Name;
-                List<PartiallySpecifiedState> initialStates = GetInitialStates(p);
+                List<PartiallySpecifiedState> initialStates = p.GetInitialStates();
                 lblActionsNumber.Text = d.Actions.Count.ToString();
                 lblGoalsNumber.Text = p.Goal.CollectPredicates.Count.ToString();
                 lblInitialStatesNumber.Text = initialStates.Count.ToString();
@@ -187,37 +187,7 @@ namespace IMAP.Forms
             cbActiveAgents.Items.AddRange(agents.ToArray());
             cbActiveAgents.SelectedIndex = 0;
         }
-        private List<PartiallySpecifiedState> GetInitialStates(Problem problem)
-        {
-            List<PartiallySpecifiedState> lpssInitialPossibleStates = new List<PartiallySpecifiedState>();
-            BeliefState bsInitial = problem.GetInitialBelief();//, bsCurrent = bsInitial, bsNext = null;
-            PartiallySpecifiedState pssInitial = bsInitial.GetPartiallySpecifiedState();
-
-            lpssInitialPossibleStates.Add(pssInitial);
-
-            foreach (var hiddenItems in problem.Hidden)
-            {
-                if (hiddenItems is CompoundFormula)
-                {
-                    List<PartiallySpecifiedState> stateAdditions = new List<PartiallySpecifiedState>();
-                    foreach (var item in hiddenItems.Operands)
-                    {
-                        foreach (var pssCurrentCheckedState in lpssInitialPossibleStates)
-                        {
-                            PartiallySpecifiedState pssNew = pssCurrentCheckedState.Clone();
-                            pssNew.AddObserved(item);
-                            stateAdditions.Add(pssNew);
-                        }
-                    }
-                    lpssInitialPossibleStates = stateAdditions;
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-            }
-            return lpssInitialPossibleStates;
-        }
+        
         private List<PartiallySpecifiedState> SearchAllStates(Domain domain, List<PartiallySpecifiedState> lInitialStates)
         {
             Console.WriteLine("Scanning all possible states, using BFS algorithm");

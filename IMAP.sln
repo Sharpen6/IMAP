@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IMAP", "IMAP\IMAP.csproj", "{85739201-A302-4132-B494-B9FD7D673CE0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlanner", "TestPlanner\TestPlanner.csproj", "{5F058024-B5FE-43D4-9386-D6461F0903EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBenchmarks", "TestBenchmarks\TestBenchmarks.csproj", "{C9266A53-D928-4D5D-AAE2-1274673562CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{5F058024-B5FE-43D4-9386-D6461F0903EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F058024-B5FE-43D4-9386-D6461F0903EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F058024-B5FE-43D4-9386-D6461F0903EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9266A53-D928-4D5D-AAE2-1274673562CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9266A53-D928-4D5D-AAE2-1274673562CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9266A53-D928-4D5D-AAE2-1274673562CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9266A53-D928-4D5D-AAE2-1274673562CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
